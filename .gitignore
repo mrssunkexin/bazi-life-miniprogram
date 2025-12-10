@@ -1,0 +1,13 @@
+# 微信小程序
+node_modules/
+.DS_Store
+*.log
+
+# 开发工具生成的文件
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 临时文件
+.tmp/

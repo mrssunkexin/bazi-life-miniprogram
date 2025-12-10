@@ -1,0 +1,106 @@
+<!--pages/result/result.wxml-->
+<view class="container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-icon"></view>
+    <text class="loading-text">正在加载报告...</text>
+  </view>
+
+  <!-- 生成中状态 - 静态等待页面 -->
+  <view wx:elif="{{generating}}" class="generating-container">
+    <!-- 静态图标 -->
+    <view class="icon-wrapper">
+      <text class="wait-icon">⏳</text>
+    </view>
+
+    <text class="generating-title">老师正在处理报告</text>
+    <text class="generating-subtitle">预计大约需要 2 小时完成</text>
+    <text class="generating-hint">完成后将第一时间通知您</text>
+
+    <!-- 公众号二维码 -->
+    <view class="qrcode-section">
+      <text class="qrcode-title">关注公众号获取通知</text>
+      <image
+        class="qrcode-image"
+        src="{{qrcodeUrl}}"
+        mode="widthFix"
+        show-menu-by-longpress="{{true}}"
+        binderror="onQRCodeError"
+      />
+      <text class="qrcode-hint">长按识别二维码关注</text>
+    </view>
+  </view>
+
+  <!-- 报告内容 -->
+  <view wx:else class="report-container">
+    <!-- 基础信息卡片 -->
+    <view class="info-card">
+      <view class="info-header">
+        <text class="name">{{report.name}}</text>
+        <text class="gender">{{report.gender === 'male' ? '男' : '女'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">出生时间：</text>
+        <text class="value">{{report.birthDate}} {{report.birthTime}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">出生地点：</text>
+        <text class="value">{{report.city}}</text>
+      </view>
+    </view>
+
+    <!-- 四柱展示 -->
+    <view class="bazi-card">
+      <view class="card-title">您的八字</view>
+      <view class="pillars">
+        <view class="pillar">
+          <text class="pillar-label">年柱</text>
+          <text class="pillar-value">{{report.baziYear}}</text>
+        </view>
+        <view class="pillar">
+          <text class="pillar-label">月柱</text>
+          <text class="pillar-value">{{report.baziMonth}}</text>
+        </view>
+        <view class="pillar">
+          <text class="pillar-label">日柱</text>
+          <text class="pillar-value">{{report.baziDay}}</text>
+        </view>
+        <view class="pillar">
+          <text class="pillar-label">时柱</text>
+          <text class="pillar-value">{{report.baziHour}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 五行分析 -->
+    <view wx:if="{{wuxing}}" class="wuxing-card">
+      <view class="card-title">五行分析</view>
+      <view class="wuxing-list">
+        <view class="wuxing-item" wx:for="{{wuxingList}}" wx:key="element">
+          <view class="wuxing-row">
+            <text class="wuxing-name {{item.element}}">{{item.name}}</text>
+            <text class="wuxing-score">{{item.score}}</text>
+          </view>
+          <view class="wuxing-bar">
+            <view class="wuxing-fill {{item.element}}" style="width: {{item.percentage}}%"></view>
+          </view>
+        </view>
+      </view>
+      <view class="wuxing-summary">
+        <text>主导五行：{{wuxing.dominant}}</text>
+      </view>
+    </view>
+
+    <!-- 完整报告 -->
+    <view class="content-card">
+      <view class="card-title">详细分析</view>
+      <rich-text class="rich-content" nodes="{{formattedContent}}"></rich-text>
+    </view>
+
+    <!-- 底部按钮 -->
+    <view class="actions">
+      <button class="action-btn primary" bindtap="onShare">分享报告</button>
+      <button class="action-btn" bindtap="onBackHome">返回首页</button>
+    </view>
+  </view>
+</view>

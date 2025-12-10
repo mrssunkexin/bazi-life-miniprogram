@@ -1,0 +1,126 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">生辰五行报告</text>
+    <text class="subtitle">专业准确 · 科学解读</text>
+    <!-- 查看报告入口 -->
+    <view class="history-entry" bindtap="onGoHistory">
+      <text class="history-icon">📋</text>
+      <text class="history-text">查看报告</text>
+    </view>
+  </view>
+
+  <form class="form" bindsubmit="onSubmit">
+    <!-- 姓名 -->
+    <view class="form-item">
+      <view class="label">
+        <text class="required">*</text>
+        <text>姓名</text>
+      </view>
+      <input
+        class="input"
+        name="name"
+        value="{{formData.name}}"
+        placeholder="请输入您的姓名"
+        bindinput="onNameInput"
+        maxlength="10"
+      />
+    </view>
+
+    <!-- 性别（单选框） -->
+    <view class="form-item">
+      <view class="label">
+        <text class="required">*</text>
+        <text>性别</text>
+      </view>
+      <radio-group class="gender-group" bindchange="onGenderChange">
+        <label class="gender-item" wx:for="{{genderOptions}}" wx:key="index">
+          <radio value="{{index}}" checked="{{formData.genderIndex === index}}" color="#667eea"/>
+          <text class="gender-text">{{item}}</text>
+        </label>
+      </radio-group>
+    </view>
+
+    <!-- 出生日期 -->
+    <view class="form-item">
+      <view class="label">
+        <text class="required">*</text>
+        <text>出生日期</text>
+      </view>
+      <picker
+        class="picker"
+        mode="date"
+        value="{{formData.birthDate}}"
+        start="1900-01-01"
+        end="{{todayDate}}"
+        bindchange="onBirthDateChange"
+      >
+        <view class="picker-value {{formData.birthDate ? '' : 'placeholder'}}">
+          {{formData.birthDate || '请选择出生日期'}}
+        </view>
+      </picker>
+    </view>
+
+    <!-- 出生时间 -->
+    <view class="form-item">
+      <view class="label">
+        <text class="required">*</text>
+        <text>出生时间</text>
+      </view>
+      <picker
+        class="picker"
+        mode="time"
+        value="{{formData.birthTime}}"
+        bindchange="onBirthTimeChange"
+      >
+        <view class="picker-value {{formData.birthTime ? '' : 'placeholder'}}">
+          {{formData.birthTime || '请选择出生时间'}}
+        </view>
+      </picker>
+    </view>
+
+    <!-- 出生城市（带搜索） -->
+    <view class="form-item">
+      <view class="label">
+        <text class="required">*</text>
+        <text>出生城市</text>
+      </view>
+      <view class="city-selector">
+        <input
+          class="input"
+          name="city"
+          value="{{formData.city}}"
+          placeholder="北京"
+          bindinput="onCityInput"
+          bindfocus="onCityFocus"
+        />
+        <view class="city-dropdown" wx:if="{{showCityDropdown && filteredCities.length > 0}}">
+          <view
+            class="city-option"
+            wx:for="{{filteredCities}}"
+            wx:key="*this"
+            bindtap="onSelectCity"
+            data-city="{{item}}"
+          >
+            {{item}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <button
+      class="submit-btn"
+      formType="submit"
+      loading="{{submitting}}"
+      disabled="{{submitting}}"
+    >
+      {{submitting ? '提交中...' : '立即测算'}}
+    </button>
+  </form>
+
+  <!-- 免责声明 -->
+  <view class="disclaimer">
+    <text>本测算仅供娱乐参考，不构成专业建议</text>
+  </view>
+</view>

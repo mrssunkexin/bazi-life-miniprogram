@@ -1,0 +1,66 @@
+<!--pages/history/history.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">我的报告</text>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-icon"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 报告列表 -->
+  <view wx:else class="report-list">
+    <!-- 空状态 -->
+    <view wx:if="{{reports.length === 0}}" class="empty-state">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无报告记录</text>
+      <button class="empty-btn" bindtap="onGoHome">立即测算</button>
+    </view>
+
+    <!-- 报告卡片列表 -->
+    <view wx:else>
+      <view
+        class="report-card"
+        wx:for="{{reports}}"
+        wx:key="id"
+        bindtap="onCardTap"
+        data-report="{{item}}"
+      >
+        <!-- 卡片头部 -->
+        <view class="card-header">
+          <view class="name-gender">
+            <text class="name">{{item.name}}</text>
+            <text class="gender">{{item.gender === 'male' ? '男' : '女'}}</text>
+          </view>
+          <view class="status-badge {{item.status === 'published' ? 'completed' : 'incomplete'}}">
+            {{item.status === 'published' ? '完成' : '未完成'}}
+          </view>
+        </view>
+
+        <!-- 卡片内容 -->
+        <view class="card-content">
+          <view class="info-row">
+            <text class="label">出生时间：</text>
+            <text class="value">{{item.birthDate}} {{item.birthTime}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">出生地点：</text>
+            <text class="value">{{item.city}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">创建时间：</text>
+            <text class="value">{{formatTime(item.createdAt)}}</text>
+          </view>
+        </view>
+
+        <!-- 卡片底部 -->
+        <view class="card-footer">
+          <text class="bazi-preview">{{item.baziYear}} {{item.baziMonth}} {{item.baziDay}} {{item.baziHour}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "我的报告",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#667eea"
+}
