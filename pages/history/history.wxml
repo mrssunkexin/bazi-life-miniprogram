@@ -32,6 +32,9 @@
         <view class="card-header">
           <view class="name-gender">
             <text class="name">{{item.name}}</text>
+            <text class="type-badge {{item.reportType === 'fortune2026' ? 'fortune2026' : 'basic'}}">
+              [{{item.buttonText || '五行分析'}}]
+            </text>
             <text class="gender">{{item.gender === 'male' ? '男' : '女'}}</text>
           </view>
           <view class="status-badge {{item.status === 'published' ? 'completed' : 'incomplete'}}">

@@ -99,8 +99,51 @@
 
     <!-- 底部按钮 -->
     <view class="actions">
-      <button class="action-btn primary" bindtap="onShare">分享报告</button>
-      <button class="action-btn" bindtap="onBackHome">返回首页</button>
+      <!-- 算法版：显示单个升级按钮 -->
+      <button wx:if="{{isAlgorithmReport}}" class="action-btn primary full-width" bindtap="onUpgradeToAI">
+        获取AI深度解读
+      </button>
+
+      <!-- AI版：显示原有的两个按钮 -->
+      <block wx:else>
+        <button class="action-btn primary" bindtap="onShare">分享报告</button>
+        <button class="action-btn" bindtap="onBackHome">返回首页</button>
+      </block>
+    </view>
+  </view>
+
+  <!-- 兑换码输入弹窗 -->
+  <view wx:if="{{showVoucherModal}}" class="voucher-modal">
+    <view class="voucher-modal-mask" bindtap="onCloseVoucherModal"></view>
+    <view class="voucher-modal-content">
+      <view class="voucher-modal-header">
+        <text class="voucher-modal-title">升级为AI深度解读</text>
+        <view class="voucher-modal-close" bindtap="onCloseVoucherModal">✕</view>
+      </view>
+
+      <view class="voucher-modal-body">
+        <text class="voucher-modal-desc">请输入您的兑换码以获取AI深度解读版报告</text>
+
+        <view class="voucher-input-group">
+          <text class="voucher-input-label">兑换码</text>
+          <input
+            class="voucher-input"
+            value="{{voucherCode}}"
+            bindinput="onVoucherCodeInput"
+            placeholder="请输入30位兑换码"
+            maxlength="30"
+          />
+        </view>
+
+        <text class="voucher-hint">AI深度解读包含：性格特征、事业发展、财富运势、感情婚姻、健康养生、大运流年等详细分析</text>
+      </view>
+
+      <view class="voucher-modal-footer">
+        <button class="voucher-btn cancel" bindtap="onCloseVoucherModal">取消</button>
+        <button class="voucher-btn confirm" bindtap="onSubmitVoucher" disabled="{{submittingVoucher}}">
+          {{submittingVoucher ? '提交中...' : '确认提交'}}
+        </button>
+      </view>
     </view>
   </view>
 </view>

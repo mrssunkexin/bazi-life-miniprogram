@@ -43,9 +43,9 @@ Page({
       }
 
       // 没有缓存或缓存过期,重新请求
-      console.log('[历史页] 缓存无效,重新请求API');
+      console.log('[历史页] 缓存无效,重新请求混合API');
       console.time('[API请求]');
-      const result = await api.getReportList();
+      const result = await api.getMixedReportList();
       console.timeEnd('[API请求]');
 
       console.time('[数据处理]');
@@ -89,16 +89,19 @@ Page({
     const report = e.currentTarget.dataset.report;
     console.log('[点击报告卡片]', report);
 
+    const reportType = report.reportType || 'basic';
+    const typeParam = reportType === 'fortune2026' ? '&type=fortune2026' : '';
+
     // 根据状态判断跳转行为
     if (report.status === 'published') {
       // 已发布:跳转到报告详情页
       wx.navigateTo({
-        url: `/pages/result/result?reportId=${report.id}`
+        url: `/pages/result/result?reportId=${report.id}${typeParam}`
       });
     } else if (report.status === 'draft') {
       // 草稿状态:跳转到等待页面(复用result页面)
       wx.navigateTo({
-        url: `/pages/result/result?reportId=${report.id}`
+        url: `/pages/result/result?reportId=${report.id}${typeParam}`
       });
     }
   },

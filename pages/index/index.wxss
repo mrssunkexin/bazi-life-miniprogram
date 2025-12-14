@@ -5,10 +5,17 @@
   padding: 0 30rpx 40rpx;
 }
 
+.hint-text {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 10rpx;
+  line-height: 1.5;
+}
+
 .header {
   text-align: center;
-  margin-bottom: 40rpx;
-  padding-top: 60rpx;
+  margin-bottom: 20rpx;
+  padding-top: 40rpx;
 }
 
 .icon-wrapper {
@@ -33,15 +40,8 @@
   font-size: 52rpx;
   font-weight: bold;
   color: #fff;
-  margin-bottom: 15rpx;
+  margin-bottom: 0;
   letter-spacing: 2rpx;
-}
-
-.subtitle {
-  display: block;
-  font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 4rpx;
 }
 
 /* 查看报告入口 */
@@ -74,7 +74,7 @@
 }
 
 .form-item {
-  margin-bottom: 22rpx;
+  margin-bottom: 18rpx;
 }
 
 .form-item:first-child {
@@ -197,8 +197,26 @@
   color: #c0c4cc;
 }
 
-.submit-btn {
+/* 按钮容器 */
+.button-container {
   width: 100%;
+  margin-top: 30rpx;
+}
+
+/* 单按钮布局 */
+.button-container.single-button {
+  display: flex;
+  justify-content: center;
+}
+
+/* 双按钮布局 */
+.button-container.dual-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.submit-btn {
   height: 90rpx;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
@@ -207,13 +225,23 @@
   border-radius: 45rpx;
   border: none;
   box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.4);
-  margin-top: 30rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   line-height: 1;
   padding: 0;
+}
+
+/* 全宽按钮 */
+.submit-btn.full-width {
+  width: 100%;
+}
+
+/* 半宽按钮 */
+.submit-btn.half-width {
+  flex: 1;
+  width: auto;
 }
 
 .submit-btn:active {
@@ -228,7 +256,8 @@
 
 .disclaimer {
   text-align: center;
-  margin-top: 40rpx;
+  margin-top: 30rpx;
+  margin-bottom: 40rpx;
   padding: 0 20rpx;
 }
 
@@ -236,4 +265,49 @@
   font-size: 24rpx;
   color: rgba(255, 255, 255, 0.7);
   line-height: 1.6;
+}
+
+/* 全屏加载遮罩 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 80rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20rpx;
+  box-shadow: 0 10rpx 40rpx rgba(0, 0, 0, 0.3);
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid #e4e7ed;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 30rpx;
+  font-size: 28rpx;
+  color: #333;
+  font-weight: bold;
 }

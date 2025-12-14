@@ -10,7 +10,8 @@ Page({
       genderIndex: 0,
       birthDate: '',
       birthTime: '',
-      city: '北京'  // 默认北京
+      city: '北京',  // 默认北京
+      voucherCode: ''  // 兑换码（可选）
     },
 
     // 性别选项
@@ -25,7 +26,16 @@ Page({
     todayDate: '',
 
     // 提交状态
-    submitting: false
+    submitting: false,
+    submittingFortune2026: false,
+
+    // 配置项
+    appTitle: '生辰五行报告',  // 默认标题
+    showVoucherCode: true,      // 默认显示兑换码
+    submitButtonText: '立即测算',
+    showFortune2026Button: false,
+    fortune2026ButtonText: '2026运势测算',
+    showBasicReportButton: true  // 默认显示基础报告按钮
   },
 
   onLoad() {
@@ -37,14 +47,72 @@ Page({
     this.setData({
       todayDate: `${year}-${month}-${day}`
     });
+
+    // 确保用户已登录
+    const app = getApp();
+    app.ensureLogin().then(() => {
+      console.log('✅ 用户已登录, userId:', app.globalData.userId);
+      // 加载配置
+      this.loadConfig();
+    }).catch((err) => {
+      console.error('❌ 登录失败:', err);
+      wx.showModal({
+        title: '提示',
+        content: '登录失败，请重启小程序',
+        showCancel: false
+      });
+    });
+  },
+
+  /**
+   * 加载小程序配置
+   */
+  async loadConfig() {
+    try {
+      console.log('[首页] 开始加载配置...');
+      // 增加获取新配置项
+      const result = await api.getConfig('app_title,show_voucher_code,official_account_qrcode,submit_button_text,show_fortune_2026_button,fortune_2026_button_text,show_basic_report_button');
+      const config = result.data || {};
+
+      console.log('[首页] 配置加载成功:', config);
+
+      // 如果后台配置了二维码，存入全局数据供结果页使用
+      if (config.official_account_qrcode) {
+        getApp().globalData.officialAccountQrcode = config.official_account_qrcode;
+      }
+
+      // 更新配置到页面
+      this.setData({
+        appTitle: config.app_title || '生辰五行报告',
+        showVoucherCode: config.show_voucher_code !== false,  // 默认true
+        submitButtonText: config.submit_button_text || '立即测算',
+        showFortune2026Button: config.show_fortune_2026_button || false,
+        fortune2026ButtonText: config.fortune_2026_button_text || '2026运势测算',
+        showBasicReportButton: config.show_basic_report_button !== false  // 默认true
+      });
+    } catch (error) {
+      console.log('[首页] 配置加载失败(使用默认值):', error.message || error);
+      // 使用默认值,不影响功能
+    }
   },
 
   /**
    * 页面显示时触发
    */
   onShow() {
-    // 在后台预加载报告列表(不阻塞UI,不影响用户体验)
-    this.preloadReports();
+    // 确保登录后再预加载报告列表
+    const app = getApp();
+    if (app.globalData.userId) {
+      // 已登录,直接预加载
+      this.preloadReports();
+    } else {
+      // 等待登录完成后预加载
+      app.ensureLogin().then(() => {
+        this.preloadReports();
+      }).catch(err => {
+        console.log('[首页] 登录失败,跳过预加载:', err);
+      });
+    }
   },
 
   /**
@@ -52,16 +120,21 @@ Page({
    */
   async preloadReports() {
     try {
+      const app = getApp();
+      if (!app.globalData.userId) {
+        console.log('[首页] userId未就绪,跳过预加载');
+        return;
+      }
+
       console.log('[首页] 开始后台预加载报告列表...');
-      const result = await api.getReportList();
-      const reports = result.data || [];
+      const result = await api.getMixedReportList();
+      const reports = result.data.reports || [];
 
       // 缓存到全局数据
-      const app = getApp();
       app.globalData.cachedReports = reports;
       app.globalData.reportsCacheTime = Date.now();
 
-      console.log('[首页] 预加载成功:', reports.length, '条报告');
+      console.log('[首页] 预加载成功:', reports.length, '条报告 (基础:', result.data.summary.basicCount, '条, 2026:', result.data.summary.fortune2026Count, '条)');
     } catch (error) {
       console.log('[首页] 预加载失败(不影响功能):', error.message || error);
     }
@@ -143,6 +216,13 @@ Page({
     });
   },
 
+  // 兑换码输入
+  onVoucherCodeInput(e) {
+    this.setData({
+      'formData.voucherCode': e.detail.value.trim().toUpperCase()
+    });
+  },
+
   // 表单验证
   validateForm() {
     const { name, birthDate, birthTime, city } = this.data.formData;
@@ -184,6 +264,18 @@ Page({
 
   // 提交表单
   async onSubmit() {
+    const app = getApp();
+
+    // 0. 验证登录状态
+    if (!app.globalData.userId) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none'
+      });
+      app.wechatLogin();
+      return;
+    }
+
     // 1. 验证表单
     if (!this.validateForm()) {
       return;
@@ -194,14 +286,20 @@ Page({
 
     try {
       // 3. 准备请求数据
-      const { name, genderIndex, birthDate, birthTime, city } = this.data.formData;
+      const { name, genderIndex, birthDate, birthTime, city, voucherCode } = this.data.formData;
       const requestData = {
         name: name.trim(),
         gender: genderIndex === 0 ? 'male' : 'female',
         birthDate,
         birthTime,
-        city: city.trim()
+        city: city.trim(),
+        buttonText: this.data.submitButtonText // 传递按钮文字
       };
+
+      // 添加兑换码（如果有）
+      if (voucherCode) {
+        requestData.voucherCode = voucherCode;
+      }
 
       console.log('[表单提交]', requestData);
 
@@ -210,29 +308,49 @@ Page({
 
       console.log('[创建报告成功]', result);
 
-      // 5. 显示确认信息弹窗
+      const reportId = result.data.id;
+      const voucherCodeFromResult = result.data.voucherCode;  // 获取返回的兑换码
+      const generationMode = result.data.generationMode; // 新增：获取生成模式
+
+      // 5. 显示信息确认弹窗（只确认基本信息）
       const genderText = this.data.formData.genderIndex === 0 ? '男' : '女';
+      const infoContent = `姓名：${name}\n性别：${genderText}\n出生日期：${birthDate}\n出生时间：${birthTime}\n出生城市：${city}`;
 
       wx.showModal({
-        title: '确认信息',
-        content: `姓名：${name}
-性别：${genderText}
-出生日期：${birthDate}
-出生时间：${birthTime}
-出生城市：${city}
-
-确认无误后，老师将开始处理您的报告`,
-        confirmText: '确认',
-        cancelText: '取消',
-        success: (res) => {
+        title: '请确认信息',
+        content: infoContent,
+        confirmText: '信息无误',
+        cancelText: '返回修改',
+        success: async (res) => {
           if (res.confirm) {
-            // 用户点击"确认"，直接跳转到报告处理页面
-            wx.navigateTo({
-              url: `/pages/result/result?reportId=${result.data.id}`
-            });
-          } else {
-            // 用户点击"取消"，停留在当前页面
-            // 可以选择是否删除已创建的报告（暂不删除）
+            // 6. 判断生成模式
+            if (generationMode === 'algorithm') {
+              // 【算法模式】报告已生成，直接跳转
+              console.log('[算法报告已生成] 直接跳转');
+              wx.navigateTo({
+                url: `/pages/result/result?reportId=${reportId}`
+              });
+
+            } else if (voucherCodeFromResult) {
+              // 【AI模式 + 有兑换码】需要激活
+              try {
+                console.log('[开始激活报告]', reportId, voucherCodeFromResult);
+                await api.activateReport(reportId, voucherCodeFromResult);
+                console.log('[激活成功]');
+
+                // 跳转到结果页（AI生成中）
+                wx.navigateTo({
+                  url: `/pages/result/result?reportId=${reportId}`
+                });
+              } catch (error) {
+                console.error('[激活失败]', error);
+                wx.showToast({
+                  title: error.message || '激活失败',
+                  icon: 'none',
+                  duration: 2000
+                });
+              }
+            }
           }
         }
       });
@@ -255,20 +373,117 @@ Page({
   /**
    * 跳转到历史报告列表
    */
-  onGoHistory() {
-    // 显示加载提示
-    wx.showLoading({
-      title: '加载中...',
-      mask: true  // 显示透明蒙层,防止触摸穿透
-    });
+  async onGoHistory() {
+    try {
+      // 显示加载提示
+      wx.showLoading({
+        title: '加载中...',
+        mask: true
+      });
 
-    // 跳转到历史页面(不自动关闭loading,由历史页面自己关闭)
-    wx.navigateTo({
-      url: '/pages/history/history',
-      fail: () => {
-        // 跳转失败,立即关闭loading
-        wx.hideLoading();
+      // 先检查是否有报告
+      const result = await api.getReportList();
+      const reports = result.data || [];
+
+      // 关闭加载提示
+      wx.hideLoading();
+
+      // 如果没有报告,显示提示
+      if (reports.length === 0) {
+        wx.showToast({
+          title: '暂无报告',
+          icon: 'none',
+          duration: 2000
+        });
+        return;
       }
-    });
+
+      // 有报告,跳转到历史页面
+      wx.navigateTo({
+        url: '/pages/history/history'
+      });
+
+    } catch (error) {
+      console.error('[查看报告失败]', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none',
+        duration: 2000
+      });
+    }
+  },
+
+  /**
+   * 提交2026运势报告
+   */
+  async onSubmitFortune2026() {
+    const app = getApp();
+
+    // 验证登录状态
+    if (!app.globalData.userId) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none'
+      });
+      app.wechatLogin();
+      return;
+    }
+
+    if (!this.validateForm()) {
+      return;
+    }
+
+    this.setData({ submittingFortune2026: true });
+
+    try {
+      const { name, genderIndex, birthDate, birthTime, city, voucherCode } = this.data.formData;
+      const requestData = {
+        name: name.trim(),
+        gender: genderIndex === 0 ? 'male' : 'female',
+        birthDate,
+        birthTime,
+        city: city.trim(),
+        buttonText: this.data.fortune2026ButtonText // 传递2026按钮文字
+      };
+
+      if (voucherCode) {
+        requestData.voucherCode = voucherCode;
+      }
+
+      console.log('[提交2026报告]', requestData);
+
+      const result = await api.createFortune2026Report(requestData);
+      console.log('[创建2026报告成功]', result);
+
+      const reportId = result.data.id;
+
+      const genderText = genderIndex === 0 ? '男' : '女';
+      const infoContent = `姓名:${name}\n性别:${genderText}\n出生日期:${birthDate}\n出生时间:${birthTime}\n出生城市:${city}`;
+
+      wx.showModal({
+        title: '请确认信息',
+        content: infoContent,
+        confirmText: '信息无误',
+        cancelText: '返回修改',
+        success: async (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: `/pages/result/result?reportId=${reportId}&type=fortune2026`
+            });
+          }
+        }
+      });
+
+    } catch (error) {
+      console.error('[创建2026报告失败]', error);
+      wx.showToast({
+        title: error.message || '生成失败',
+        icon: 'none',
+        duration: 2000
+      });
+    } finally {
+      this.setData({ submittingFortune2026: false });
+    }
   }
 });

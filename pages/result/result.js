@@ -5,6 +5,7 @@ const config = require('../../config.js');
 Page({
   data: {
     reportId: '',
+    reportType: 'basic', // 新增: basic 或 fortune2026
     report: null,
     wuxing: null,
     wuxingList: [],
@@ -12,7 +13,11 @@ Page({
     qrcodeUrl: config.current.qrcodeUrl,
     loading: true,
     generating: false,
-    progress: 0
+    progress: 0,
+    isAlgorithmReport: false, // 是否为算法版报告
+    showVoucherModal: false, // 是否显示兑换码弹窗
+    voucherCode: '', // 兑换码输入值
+    submittingVoucher: false // 是否正在提交兑换码
   },
 
   async onLoad(options) {
@@ -27,7 +32,19 @@ Page({
       return;
     }
 
-    this.setData({ reportId: options.reportId });
+    this.setData({
+      reportId: options.reportId,
+      reportType: options.type || 'basic' // 从URL参数获取类型
+    });
+
+    // 优先使用后台配置的二维码
+    const app = getApp();
+    if (app.globalData.officialAccountQrcode) {
+      this.setData({
+        qrcodeUrl: app.globalData.officialAccountQrcode
+      });
+    }
+
     await this.loadReport();
   },
 
@@ -36,7 +53,10 @@ Page({
    */
   async loadReport() {
     try {
-      const result = await api.getReport(this.data.reportId);
+      // 根据类型调用不同API
+      const result = this.data.reportType === 'fortune2026'
+        ? await api.getFortune2026Report(this.data.reportId)
+        : await api.getReport(this.data.reportId);
       const report = result.data;
 
       console.log('[报告数据]', report);
@@ -146,11 +166,16 @@ Page({
     // 格式化报告内容（简单处理，将换行符转为 <br/>）
     const formattedContent = this.formatContent(report.fullContent);
 
+    // 判断是否为算法版报告（通过检查内容中是否包含"纯算法解读"标识）
+    const isAlgorithmReport = report.fullContent && report.fullContent.includes('纯算法解读');
+    console.log('[报告类型判断]', isAlgorithmReport ? '算法版' : 'AI版');
+
     this.setData({
       report,
       wuxing,
       wuxingList,
       formattedContent,
+      isAlgorithmReport,
       loading: false,
       generating: false,
       progress: 100
@@ -193,6 +218,99 @@ Page({
    */
   onBackHome() {
     wx.navigateBack();
+  },
+
+  /**
+   * 升级为AI解读（打开兑换码弹窗）
+   */
+  onUpgradeToAI() {
+    this.setData({
+      showVoucherModal: true,
+      voucherCode: ''
+    });
+  },
+
+  /**
+   * 关闭兑换码弹窗
+   */
+  onCloseVoucherModal() {
+    this.setData({
+      showVoucherModal: false,
+      voucherCode: '',
+      submittingVoucher: false
+    });
+  },
+
+  /**
+   * 兑换码输入
+   */
+  onVoucherCodeInput(e) {
+    this.setData({
+      voucherCode: e.detail.value
+    });
+  },
+
+  /**
+   * 提交兑换码，创建AI版报告
+   */
+  async onSubmitVoucher() {
+    const { voucherCode, reportId, report } = this.data;
+
+    // 验证兑换码
+    if (!voucherCode || voucherCode.trim().length === 0) {
+      wx.showToast({
+        title: '请输入兑换码',
+        icon: 'none'
+      });
+      return;
+    }
+
+    if (voucherCode.length !== 30) {
+      wx.showToast({
+        title: '兑换码应为30位',
+        icon: 'none'
+      });
+      return;
+    }
+
+    this.setData({ submittingVoucher: true });
+
+    try {
+      // 调用后端API，基于当前算法版报告创建AI版报告
+      const result = await api.upgradeReportToAI(reportId, voucherCode);
+      console.log('[升级报告成功]', result);
+
+      const newReportId = result.data.id;
+      const voucherCodeFromResult = result.data.voucherCode;
+
+      // 关闭弹窗
+      this.onCloseVoucherModal();
+
+      // 激活报告（核销兑换码，触发AI生成）
+      try {
+        await api.activateReport(newReportId, voucherCodeFromResult);
+        console.log('[激活成功]');
+      } catch (activateError) {
+        console.error('[激活失败]', activateError);
+        // 激活失败也继续跳转，让用户看到错误状态
+      }
+
+      // 直接跳转到新报告页面（显示等待界面）
+      wx.redirectTo({
+        url: `/pages/result/result?reportId=${newReportId}`
+      });
+
+    } catch (error) {
+      console.error('[升级报告失败]', error);
+      this.setData({ submittingVoucher: false });
+
+      wx.showModal({
+        title: '提交失败',
+        content: error.message || '兑换码无效或已被使用，请检查后重试',
+        showCancel: false,
+        confirmText: '知道了'
+      });
+    }
   },
 
   /**

@@ -1,8 +1,7 @@
 <!--pages/index/index.wxml-->
 <view class="container">
   <view class="header">
-    <text class="title">生辰五行报告</text>
-    <text class="subtitle">专业准确 · 科学解读</text>
+    <text class="title">{{appTitle}}</text>
     <!-- 查看报告入口 -->
     <view class="history-entry" bindtap="onGoHistory">
       <text class="history-icon">📋</text>
@@ -108,19 +107,61 @@
       </view>
     </view>
 
-    <!-- 提交按钮 -->
-    <button
-      class="submit-btn"
-      formType="submit"
-      loading="{{submitting}}"
-      disabled="{{submitting}}"
+    <!-- 兑换码（根据配置显示/隐藏） -->
+    <view class="form-item" wx:if="{{showVoucherCode}}">
+      <view class="label">
+        <text>兑换码（可选）</text>
+      </view>
+      <view class="hint-text">如有兑换码，请填写以激活报告生成</view>
+      <input
+        class="input"
+        name="voucherCode"
+        value="{{formData.voucherCode}}"
+        placeholder="请输入30位兑换码"
+        bindinput="onVoucherCodeInput"
+        maxlength="30"
+      />
+    </view>
+
+    <!-- 提交按钮区域(动态布局) -->
+    <view
+      wx:if="{{showBasicReportButton || showFortune2026Button}}"
+      class="button-container {{showBasicReportButton && showFortune2026Button ? 'dual-buttons' : 'single-button'}}"
     >
-      {{submitting ? '提交中...' : '立即测算'}}
-    </button>
+      <!-- 基础报告按钮 -->
+      <button
+        wx:if="{{showBasicReportButton}}"
+        class="submit-btn {{showBasicReportButton && showFortune2026Button ? 'half-width' : 'full-width'}}"
+        formType="submit"
+        loading="{{submitting}}"
+        disabled="{{submitting || submittingFortune2026}}"
+      >
+        {{submitting ? '提交中...' : submitButtonText}}
+      </button>
+
+      <!-- 2026运势按钮 -->
+      <button
+        wx:if="{{showFortune2026Button}}"
+        class="submit-btn {{showBasicReportButton && showFortune2026Button ? 'half-width' : 'full-width'}}"
+        bindtap="onSubmitFortune2026"
+        loading="{{submittingFortune2026}}"
+        disabled="{{submitting || submittingFortune2026}}"
+      >
+        {{submittingFortune2026 ? '提交中...' : fortune2026ButtonText}}
+      </button>
+    </view>
   </form>
 
   <!-- 免责声明 -->
   <view class="disclaimer">
     <text>本测算仅供娱乐参考，不构成专业建议</text>
+  </view>
+
+  <!-- 全屏加载遮罩 -->
+  <view wx:if="{{submitting}}" class="loading-overlay">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">提交中...</text>
+    </view>
   </view>
 </view>
