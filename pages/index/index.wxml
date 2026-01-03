@@ -1,15 +1,17 @@
 <!--pages/index/index.wxml-->
 <view class="container">
-  <view class="header">
-    <text class="title">{{appTitle}}</text>
-    <!-- 查看报告入口 -->
-    <view class="history-entry" bindtap="onGoHistory">
-      <text class="history-icon">📋</text>
-      <text class="history-text">查看报告</text>
+  <!-- 显示模式：完整功能 -->
+  <block wx:if="{{showFortunePage}}">
+    <view class="header">
+      <text class="title">{{appTitle}}</text>
+      <!-- 查看报告入口 -->
+      <view class="history-entry" bindtap="onGoHistory">
+        <text class="history-icon">📋</text>
+        <text class="history-text">查看报告</text>
+      </view>
     </view>
-  </view>
 
-  <form class="form" bindsubmit="onSubmit">
+    <form class="form" bindsubmit="onSubmit">
     <!-- 姓名 -->
     <view class="form-item">
       <view class="label">
@@ -152,16 +154,22 @@
     </view>
   </form>
 
-  <!-- 免责声明 -->
-  <view class="disclaimer">
-    <text>本测算仅供娱乐参考，不构成专业建议</text>
-  </view>
-
-  <!-- 全屏加载遮罩 -->
-  <view wx:if="{{submitting}}" class="loading-overlay">
-    <view class="loading-content">
-      <view class="loading-spinner"></view>
-      <text class="loading-text">提交中...</text>
+    <!-- 免责声明 -->
+    <view class="disclaimer">
+      <text>本测算仅供娱乐参考，不构成专业建议</text>
     </view>
+
+    <!-- 全屏加载遮罩 -->
+    <view wx:if="{{submitting}}" class="loading-overlay">
+      <view class="loading-content">
+        <view class="loading-spinner"></view>
+        <text class="loading-text">提交中...</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 不显示模式：提示文案 -->
+  <view wx:else class="feature-unavailable">
+    <text class="unavailable-text">该功能尚未开发</text>
   </view>
 </view>

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "老黄历",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#667eea",
+  "backgroundTextStyle": "light",
+  "enableShareAppMessage": true
+}

@@ -7,7 +7,7 @@ Page({
     // 表单数据
     formData: {
       name: '',
-      genderIndex: 0,
+      genderIndex: -1, // 默认不选中
       birthDate: '',
       birthTime: '',
       city: '北京',  // 默认北京
@@ -35,10 +35,38 @@ Page({
     submitButtonText: '立即测算',
     showFortune2026Button: false,
     fortune2026ButtonText: '2026运势测算',
-    showBasicReportButton: true  // 默认显示基础报告按钮
+    showBasicReportButton: true,  // 默认显示基础报告按钮
+    showFortunePage: false  // 默认不显示运势页面
   },
 
-  onLoad() {
+  async onLoad() {
+    const app = getApp();
+
+    // 等待配置加载完成（最多等待3秒）
+    let retryCount = 0;
+    while (!app.globalData.configLoaded && retryCount < 30) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      retryCount++;
+    }
+
+    // 检查是否应该拦截该页面
+    console.log('[运势页] 检查拦截, configLoaded:', app.globalData.configLoaded, 'showTabBar:', app.globalData.showTabBar);
+    if (!app.globalData.showTabBar) {
+      // TabBar 隐藏时，拦截运势页面访问
+      wx.showToast({
+        title: '该功能暂未开发',
+        icon: 'none',
+        duration: 2000
+      });
+      // 延迟返回黄历页
+      setTimeout(() => {
+        wx.switchTab({
+          url: '/pages/calendar/calendar'
+        });
+      }, 2000);
+      return;
+    }
+
     // 设置今天日期
     const today = new Date();
     const year = today.getFullYear();
@@ -49,7 +77,6 @@ Page({
     });
 
     // 确保用户已登录
-    const app = getApp();
     app.ensureLogin().then(() => {
       console.log('✅ 用户已登录, userId:', app.globalData.userId);
       // 加载配置
@@ -71,7 +98,7 @@ Page({
     try {
       console.log('[首页] 开始加载配置...');
       // 增加获取新配置项
-      const result = await api.getConfig('app_title,show_voucher_code,official_account_qrcode,submit_button_text,show_fortune_2026_button,fortune_2026_button_text,show_basic_report_button');
+      const result = await api.getConfig('app_title,show_voucher_code,official_account_qrcode,submit_button_text,show_fortune_2026_button,fortune_2026_button_text,show_basic_report_button,show_fortune_page');
       const config = result.data || {};
 
       console.log('[首页] 配置加载成功:', config);
@@ -88,7 +115,8 @@ Page({
         submitButtonText: config.submit_button_text || '立即测算',
         showFortune2026Button: config.show_fortune_2026_button || false,
         fortune2026ButtonText: config.fortune_2026_button_text || '2026运势测算',
-        showBasicReportButton: config.show_basic_report_button !== false  // 默认true
+        showBasicReportButton: config.show_basic_report_button !== false,  // 默认true
+        showFortunePage: config.show_fortune_page || false  // 默认false（不显示）
       });
     } catch (error) {
       console.log('[首页] 配置加载失败(使用默认值):', error.message || error);
@@ -100,6 +128,17 @@ Page({
    * 页面显示时触发
    */
   onShow() {
+    // 控制 TabBar 显示/隐藏（延迟执行确保配置已加载）
+    setTimeout(() => {
+      const app = getApp();
+      console.log('[运势页] TabBar配置:', app.globalData.showTabBar);
+      if (app.globalData.showTabBar) {
+        wx.showTabBar({ animation: false });
+      } else {
+        wx.hideTabBar({ animation: false });
+      }
+    }, 100);
+
     // 确保登录后再预加载报告列表
     const app = getApp();
     if (app.globalData.userId) {
@@ -225,11 +264,19 @@ Page({
 
   // 表单验证
   validateForm() {
-    const { name, birthDate, birthTime, city } = this.data.formData;
+    const { name, genderIndex, birthDate, birthTime, city } = this.data.formData;
 
     if (!name || !name.trim()) {
       wx.showToast({
         title: '请输入姓名',
+        icon: 'none'
+      });
+      return false;
+    }
+
+    if (genderIndex === -1) {
+      wx.showToast({
+        title: '请选择性别',
         icon: 'none'
       });
       return false;
@@ -287,9 +334,13 @@ Page({
     try {
       // 3. 准备请求数据
       const { name, genderIndex, birthDate, birthTime, city, voucherCode } = this.data.formData;
+      const gender =
+        genderIndex === 0 ? 'male' :
+        genderIndex === 1 ? 'female' : '';
+
       const requestData = {
         name: name.trim(),
-        gender: genderIndex === 0 ? 'male' : 'female',
+        gender,
         birthDate,
         birthTime,
         city: city.trim(),
@@ -438,9 +489,13 @@ Page({
 
     try {
       const { name, genderIndex, birthDate, birthTime, city, voucherCode } = this.data.formData;
+      const gender =
+        genderIndex === 0 ? 'male' :
+        genderIndex === 1 ? 'female' : '';
+
       const requestData = {
         name: name.trim(),
-        gender: genderIndex === 0 ? 'male' : 'female',
+        gender,
         birthDate,
         birthTime,
         city: city.trim(),
@@ -485,5 +540,15 @@ Page({
     } finally {
       this.setData({ submittingFortune2026: false });
     }
+  },
+
+  /**
+   * 页面分享配置
+   */
+  onShareAppMessage() {
+    return {
+      title: '九思知白堂｜生辰五行分析',
+      path: '/pages/index/index'
+    };
   }
 });

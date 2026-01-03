@@ -17,7 +17,9 @@ Page({
     isAlgorithmReport: false, // 是否为算法版报告
     showVoucherModal: false, // 是否显示兑换码弹窗
     voucherCode: '', // 兑换码输入值
-    submittingVoucher: false // 是否正在提交兑换码
+    submittingVoucher: false, // 是否正在提交兑换码
+    showWaitingNotify: true, // 等待页文案开关
+    showWaitingQr: true // 等待页二维码开关
   },
 
   async onLoad(options) {
@@ -45,7 +47,34 @@ Page({
       });
     }
 
+    await this.loadWaitingConfig();
     await this.loadReport();
+  },
+
+  /**
+   * 加载等待页相关配置
+   */
+  async loadWaitingConfig() {
+    try {
+      const result = await api.getConfig('waiting_show_notify,waiting_show_qr,official_account_qrcode');
+      const configData = result.data || {};
+
+      const showNotify = configData.waiting_show_notify !== false;
+      const showQr = configData.waiting_show_qr !== false;
+      const qrcodeFromConfig = configData.official_account_qrcode;
+
+      if (qrcodeFromConfig) {
+        getApp().globalData.officialAccountQrcode = qrcodeFromConfig;
+      }
+
+      this.setData({
+        showWaitingNotify: showNotify,
+        showWaitingQr: showQr,
+        qrcodeUrl: qrcodeFromConfig || this.data.qrcodeUrl
+      });
+    } catch (error) {
+      console.log('[等待配置] 加载失败，使用默认值', error);
+    }
   },
 
   /**
@@ -217,7 +246,9 @@ Page({
    * 返回首页
    */
   onBackHome() {
-    wx.navigateBack();
+    wx.reLaunch({
+      url: '/pages/index/index'
+    });
   },
 
   /**

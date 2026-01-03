@@ -1,0 +1,37 @@
+<!--pages/my/my.wxml-->
+<view class="my-container">
+  <view class="header">
+    <view class="avatar-section">
+      <image
+        wx:if="{{userInfo}}"
+        class="avatar"
+        src="{{userInfo.avatarUrl}}"
+        mode="aspectFill"
+      ></image>
+      <view wx:else class="avatar-placeholder">👤</view>
+      <view class="nickname">{{userInfo ? userInfo.nickName : '未登录'}}</view>
+    </view>
+  </view>
+
+  <view class="content">
+    <view class="placeholder-card">
+      <view class="placeholder-icon">🚧</view>
+      <view class="placeholder-text">功能开发中</view>
+      <view class="placeholder-desc">敬请期待更多精彩功能</view>
+    </view>
+
+    <!-- 预留功能入口 -->
+    <view class="menu-list">
+      <view class="menu-item disabled">
+        <text class="menu-icon">⚙️</text>
+        <text class="menu-text">设置</text>
+        <text class="menu-tag">即将上线</text>
+      </view>
+      <view class="menu-item disabled">
+        <text class="menu-icon">ℹ️</text>
+        <text class="menu-text">关于</text>
+        <text class="menu-tag">即将上线</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,755 @@
+/* pages/calendar/calendar.wxss */
+.calendar-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 8rpx;
+}
+
+/* ========== 顶部导航栏 ========== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #eee;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+}
+
+.lantern-icon {
+  font-size: 40rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #d63031;
+}
+
+.today-btn-top {
+  padding: 8rpx 16rpx;
+  background-color: #667eea;
+  color: #fff;
+  font-size: 24rpx;
+  border-radius: 30rpx;
+}
+
+.calendar-icon {
+  padding: 10rpx;
+}
+
+.icon {
+  font-size: 40rpx;
+}
+
+/* ========== 加载状态 ========== */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 600rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* ========== 内容区域 ========== */
+.content {
+  padding: 20rpx;
+}
+
+/* ========== 日期主信息区 ========== */
+.date-section {
+  display: flex;
+  justify-content: space-between;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.date-left {
+  flex: 1;
+}
+
+.solar-date {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.lunar-date {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 15rpx;
+}
+
+.tags {
+  display: flex;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  color: #fff;
+}
+
+.tag-zodiac {
+  background-color: #ff8c42;
+}
+
+.tag-week {
+  background-color: #00b894;
+}
+
+.tag-jieqi {
+  background-color: #fdcb6e;
+}
+
+.date-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.icon-prev,
+.icon-next {
+  position: absolute;
+  font-size: 80rpx;
+  color: #999;
+  font-weight: bold;
+  padding: 20rpx;
+  line-height: 1;
+}
+
+.icon-prev {
+  top: 50%;
+  left: -50rpx;
+  transform: translateY(-50%);
+}
+
+.icon-next {
+  top: 50%;
+  right: -50rpx;
+  transform: translateY(-50%);
+}
+
+.day-number {
+  font-size: 140rpx;
+  font-weight: bold;
+  color: #d63031;
+  line-height: 1;
+}
+
+/* ========== 节气信息 ========== */
+.jieqi-section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 25rpx 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.jieqi-line {
+  font-size: 26rpx;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.jieqi-label {
+  color: #666;
+}
+
+.jieqi-value {
+  color: #00b894;
+  font-weight: 500;
+}
+
+.festival-line {
+  font-size: 26rpx;
+  color: #d63031;
+  margin-top: 10rpx;
+  font-weight: 500;
+}
+
+/* ========== 宜忌区域 ========== */
+.yiji-section {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.yiji-left,
+.yiji-right {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 25rpx;
+}
+
+.yiji-header {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 15rpx;
+}
+
+.yi-header {
+  color: #00b894;
+}
+
+.ji-header {
+  color: #d63031;
+}
+
+.yiji-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.yiji-item {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.yiji-item::after {
+  content: '·';
+  margin-left: 10rpx;
+  color: #ccc;
+}
+
+.yiji-item:last-child::after {
+  content: '';
+}
+
+/* ========== 冲煞区域 ========== */
+.chongsha-section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 25rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.chongsha-header {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #00b894;
+  flex-shrink: 0;
+}
+
+.chongsha-text {
+  font-size: 26rpx;
+  color: #333;
+  flex: 1;
+}
+
+/* ========== 流年流月流日 + 值日星神 ========== */
+.ganzhi-section {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.ganzhi-left {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 25rpx;
+}
+
+.ganzhi-title {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 10rpx;
+}
+
+.ganzhi-content {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.wuxing-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.ganzhi-right {
+  flex: 1;
+}
+
+.zhiri-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.zhiri-label {
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 12rpx;
+  text-align: center;
+}
+
+.zhiri-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.zhiri-item:last-child {
+  margin-bottom: 0;
+}
+
+.zhiri-key {
+  font-size: 22rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.zhiri-value {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: right;
+}
+
+/* ========== 吉神方位 ========== */
+.fangwei-section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 25rpx 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-icon {
+  font-size: 32rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.fangwei-table {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.fangwei-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.fangwei-cell {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15rpx 20rpx;
+  background-color: #f8f9fa;
+  border-radius: 8rpx;
+}
+
+.fangwei-cell-single {
+  width: calc(50% - 10rpx);
+}
+
+.fangwei-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.fangwei-value {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* ========== 时辰吉凶 ========== */
+.shichen-section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 25rpx 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.shichen-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15rpx;
+}
+
+.shichen-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15rpx 10rpx;
+  border-radius: 12rpx;
+  background-color: #fff;
+  border: 1rpx solid #e0e0e0;
+}
+
+.shichen-name {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5rpx;
+}
+
+.shichen-time {
+  font-size: 20rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.shichen-status {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+/* 时辰吉凶状态样式 - 只设置文字颜色 */
+.shichen-ji .shichen-status {
+  color: #00b894;
+}
+
+.shichen-xiong .shichen-status {
+  color: #d63031;
+}
+
+.shichen-ping .shichen-status {
+  color: #fdcb6e;
+}
+
+/* 当前时辰高亮 - 吉时用绿色背景 */
+.shichen-current.shichen-ji {
+  background-color: #b8f5e3 !important;
+  border: none !important;
+}
+
+/* 当前时辰高亮 - 凶时用红色背景 */
+.shichen-current.shichen-xiong {
+  background-color: #ffd4d4 !important;
+  border: none !important;
+}
+
+/* 当前时辰高亮 - 平时用黄色背景 */
+.shichen-current.shichen-ping {
+  background-color: #fff3d4 !important;
+  border: none !important;
+}
+
+.shichen-current .shichen-name {
+  color: #333 !important;
+}
+
+.shichen-current .shichen-time {
+  color: #666 !important;
+}
+
+.shichen-current .shichen-status {
+  font-weight: bold !important;
+}
+
+/* ========== 时辰五行能量 ========== */
+.wuxing-energy-section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 25rpx 30rpx;
+  margin-bottom: 20rpx;
+}
+
+/* 五行颜色图例 */
+.wuxing-legend {
+  display: flex;
+  justify-content: center;
+  gap: 15rpx;
+  margin-bottom: 20rpx;
+  padding: 15rpx 0;
+}
+
+.legend-item {
+  padding: 8rpx 20rpx;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* 五行配色（浅色系） */
+.wuxing-jin {
+  background-color: #FFF8DC;
+  color: #8B7355 !important;
+}
+
+.wuxing-mu {
+  background-color: #6CA245;
+  color: #FFF8DC !important;
+}
+
+.wuxing-shui {
+  background-color: #000000;
+  color: #FFF8DC !important;
+}
+
+.wuxing-huo {
+  background-color: #B51700;
+  color: #FFF8DC !important;
+}
+
+.wuxing-tu {
+  background-color: #F2B453;
+  color: #FFF8DC !important;
+}
+
+/* 空单元格 */
+.wuxing-empty {
+  background-color: #fafafa !important;
+  color: #ccc !important;
+}
+
+/* 流日卡片 */
+.wuxing-liuri-card {
+  background-color: #fff;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 15rpx;
+  position: relative;
+}
+
+/* 流日标题 */
+.wuxing-liuri-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 26rpx;
+  color: #333;
+  margin-bottom: 15rpx;
+  padding-bottom: 10rpx;
+  border-bottom: 1rpx solid #e0e0e0;
+}
+
+/* 流日卡片的垂直白色分割线 */
+.wuxing-liuri-card::after {
+  content: '';
+  position: absolute;
+  top: 60rpx;
+  bottom: 0;
+  left: 40%;
+  width: 15rpx;
+  background-color: #fff;
+  z-index: 1;
+}
+
+/* 干支/藏干单元格 */
+.wuxing-gan-zhi,
+.wuxing-canggan {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rpx 5rpx;        /* 减小上下内边距 */
+  border-radius: 6rpx;
+  min-height: 20rpx;
+}
+
+.gan-zhi-text {
+  font-size: 24rpx;           /* 减小字体 */
+  font-weight: bold;
+  margin-bottom: 2rpx;        /* 减小间距 */
+}
+
+.wuxing-text {
+  font-size: 16rpx;           /* 减小五行文字 */
+}
+
+.canggan-text {
+  font-size: 22rpx;           /* 减小藏干文字 */
+  font-weight: bold;
+  margin-bottom: 2rpx;        /* 减小间距 */
+}
+
+.percent-text {
+  font-size: 16rpx;           /* 减小百分比文字 */
+}
+
+/* 五行能量表格 */
+.wuxing-table {
+  width: 95%;
+  margin: 0 auto;
+  border-radius: 8rpx;
+  overflow: hidden;
+  border: 3rpx solid #e0e0e0;
+  position: relative;
+}
+
+/* 添加垂直白色分割线 */
+.wuxing-table::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 40%;
+  width: 15rpx;
+  background-color: #fff;
+  z-index: 10;
+}
+
+.wuxing-row {
+  display: flex;
+  border-bottom: 3rpx solid #e0e0e0;
+}
+
+.wuxing-row:last-child {
+  border-bottom: none;
+}
+
+.wuxing-cell {
+  flex: 1;
+  padding: 15rpx 8rpx;
+  text-align: center;
+  font-size: 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 标题行样式 */
+.wuxing-title-row {
+  display: flex;
+  background-color: #e8eaf6;
+  border-bottom: 2rpx solid #c5cae9;
+}
+
+.wuxing-title-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 8rpx;         /* 减小标题行内边距 */
+  font-size: 22rpx;           /* 减小标题字体 */
+  font-weight: bold;
+  color: #5c6bc0;
+}
+
+.wuxing-title-shichen {
+  flex: 2;
+  border-right: 15rpx solid #fff;
+  margin-right: 0;
+}
+
+.wuxing-title-canggan {
+  flex: 3;
+  margin-left: 0;
+}
+
+/* 表头行样式 */
+.wuxing-header-row {
+  background-color: #f0f0f0;
+}
+
+.wuxing-header-row .wuxing-cell-header {
+  font-weight: bold;
+  font-size: 20rpx;           /* 减小表头字体 */
+  color: #666;
+  padding: 8rpx 8rpx;         /* 减小表头内边距 */
+  border-right: none;
+}
+
+/* 表头行：时辰列和藏干列之间的分割线 - 已由表格整体分割线处理 */
+
+.wuxing-header-canggan:first-of-type {
+  margin-left: 0;
+}
+
+/* 时辰行样式 */
+.wuxing-shichen-row {
+  transition: all 0.3s;
+  position: relative;
+}
+
+.wuxing-shichen-row .wuxing-gan-zhi,
+.wuxing-shichen-row .wuxing-canggan {
+  min-height: 50rpx;          /* 减小时辰行高度 */
+}
+
+/* 时辰列和藏干列之间的白色分割 - 已由表格整体分割线处理 */
+
+/* 流日行布局 */
+.wuxing-liuri-row {
+  display: flex;
+  align-items: stretch;
+}
+
+/* 流日行单元格 - 每个单元格占1份，总共5份 */
+.wuxing-liuri-cell {
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+/* 当前时辰高亮 - 根据吉凶显示不同背景色和发光边框 */
+.wuxing-shichen-current[data-jixiong="吉"] {
+  background-color: rgba(0, 184, 148, 0.1) !important;
+  border: 6rpx solid #00b894 !important;
+  box-shadow: 0 0 15rpx rgba(0, 184, 148, 0.6),
+              0 0 30rpx rgba(0, 184, 148, 0.4),
+              inset 0 0 10rpx rgba(0, 184, 148, 0.1) !important;
+}
+
+.wuxing-shichen-current[data-jixiong="凶"] {
+  background-color: rgba(214, 48, 49, 0.1) !important;
+  border: 6rpx solid #d63031 !important;
+  box-shadow: 0 0 15rpx rgba(214, 48, 49, 0.6),
+              0 0 30rpx rgba(214, 48, 49, 0.4),
+              inset 0 0 10rpx rgba(214, 48, 49, 0.1) !important;
+}
+
+.wuxing-shichen-current[data-jixiong="平"] {
+  background-color: rgba(253, 203, 110, 0.1) !important;
+  border: 6rpx solid #fdcb6e !important;
+  box-shadow: 0 0 15rpx rgba(253, 203, 110, 0.6),
+              0 0 30rpx rgba(253, 203, 110, 0.4),
+              inset 0 0 10rpx rgba(253, 203, 110, 0.1) !important;
+}
+
+.wuxing-shichen-current .wuxing-gan-zhi,
+.wuxing-shichen-current .wuxing-canggan {
+  font-weight: bold !important;
+}
+

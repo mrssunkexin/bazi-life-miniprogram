@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>生成 TabBar 图标</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .icon-container {
+            display: inline-block;
+            margin: 20px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            background: white;
+            margin: 10px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <h1>TabBar 图标生成器</h1>
+    <p>点击下载按钮保存图标（81x81px）</p>
+
+    <div class="icon-container">
+        <h3>黄历图标</h3>
+        <canvas id="calendar-normal" width="81" height="81"></canvas>
+        <canvas id="calendar-active" width="81" height="81"></canvas>
+        <br>
+        <button onclick="downloadIcon('calendar-normal', 'tab-calendar.png')">下载未选中</button>
+        <button onclick="downloadIcon('calendar-active', 'tab-calendar-active.png')">下载选中</button>
+    </div>
+
+    <div class="icon-container">
+        <h3>运势图标</h3>
+        <canvas id="fortune-normal" width="81" height="81"></canvas>
+        <canvas id="fortune-active" width="81" height="81"></canvas>
+        <br>
+        <button onclick="downloadIcon('fortune-normal', 'tab-fortune.png')">下载未选中</button>
+        <button onclick="downloadIcon('fortune-active', 'tab-fortune-active.png')">下载选中</button>
+    </div>
+
+    <div class="icon-container">
+        <h3>我的图标</h3>
+        <canvas id="my-normal" width="81" height="81"></canvas>
+        <canvas id="my-active" width="81" height="81"></canvas>
+        <br>
+        <button onclick="downloadIcon('my-normal', 'tab-my.png')">下载未选中</button>
+        <button onclick="downloadIcon('my-active', 'tab-my-active.png')">下载选中</button>
+    </div>
+
+    <script>
+        const normalColor = '#999999';
+        const activeColor = '#667eea';
+
+        // 绘制黄历图标（日历样式）
+        function drawCalendar(canvasId, color) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 81, 81);
+
+            // 日历外框
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(15, 20, 51, 48);
+
+            // 日历顶部装订环
+            ctx.fillStyle = color;
+            ctx.fillRect(25, 15, 3, 10);
+            ctx.fillRect(53, 15, 3, 10);
+
+            // 日期数字 "30"
+            ctx.font = 'bold 24px Arial';
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('30', 40.5, 48);
+        }
+
+        // 绘制运势图标（八卦/阴阳样式）
+        function drawFortune(canvasId, color) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 81, 81);
+
+            const centerX = 40.5;
+            const centerY = 40.5;
+            const radius = 28;
+
+            // 绘制太极图
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 阴阳分界线（S形曲线）
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - radius/2, radius/2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY + radius/2, radius/2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 小圆点
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - radius/2, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY + radius/2, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 绘制我的图标（用户头像样式）
+        function drawUser(canvasId, color) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 81, 81);
+
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 3;
+
+            // 头部圆圈
+            ctx.beginPath();
+            ctx.arc(40.5, 28, 13, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 身体（半圆弧）
+            ctx.beginPath();
+            ctx.arc(40.5, 65, 24, Math.PI, Math.PI * 2);
+            ctx.stroke();
+
+            // 连接线
+            ctx.beginPath();
+            ctx.moveTo(16.5, 65);
+            ctx.lineTo(16.5, 62);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(64.5, 65);
+            ctx.lineTo(64.5, 62);
+            ctx.stroke();
+        }
+
+        // 生成所有图标
+        drawCalendar('calendar-normal', normalColor);
+        drawCalendar('calendar-active', activeColor);
+        drawFortune('fortune-normal', normalColor);
+        drawFortune('fortune-active', activeColor);
+        drawUser('my-normal', normalColor);
+        drawUser('my-active', activeColor);
+
+        // 下载图标
+        function downloadIcon(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

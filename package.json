@@ -1,0 +1,19 @@
+{
+  "name": "bazi-life-miniprogram",
+  "version": "1.0.0",
+  "description": "八字命理分析小程序",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "miniprogram",
+    "bazi",
+    "lunar-calendar"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lunar-javascript": "^1.7.7"
+  }
+}

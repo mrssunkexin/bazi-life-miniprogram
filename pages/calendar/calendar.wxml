@@ -1,0 +1,274 @@
+<!--pages/calendar/calendar.wxml-->
+<view class="calendar-container" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
+  <!-- 顶部导航栏 -->
+  <view class="header">
+    <view class="header-left">
+      <text class="lantern-icon">🏮</text>
+      <text class="title">万年历</text>
+    </view>
+    <view class="header-right">
+      <view wx:if="{{!isToday}}" class="today-btn-top" bindtap="goToToday">
+        <text>回到今天</text>
+      </view>
+      <view class="calendar-icon" bindtap="onCalendarIconClick">
+        <text class="icon">📅</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 黄历内容 -->
+  <view wx:else class="content">
+    <!-- 日期主信息区 -->
+    <view class="date-section">
+      <view class="date-left">
+        <view class="solar-date">{{calendarData.solar.year}}年{{calendarData.solar.month}}月{{calendarData.solar.day}}日 星期{{calendarData.solar.weekday}}</view>
+        <view class="lunar-date">{{calendarData.lunar.monthDay}}</view>
+        <view class="tags">
+          <text class="tag tag-zodiac">属{{calendarData.lunar.zodiac}}</text>
+          <text class="tag tag-week">第 {{calendarData.solar.week}} 周</text>
+          <text wx:if="{{calendarData.jieQiTag}}" class="tag tag-jieqi">{{calendarData.jieQiTag.name}}</text>
+        </view>
+      </view>
+      <view class="date-right">
+        <text class="icon-prev" bindtap="onPrevDay">‹</text>
+        <text class="day-number">{{calendarData.solar.day}}</text>
+        <text class="icon-next" bindtap="onNextDay">›</text>
+      </view>
+    </view>
+
+    <!-- 节气信息 -->
+    <view class="jieqi-section">
+      <view class="jieqi-line">
+        <text class="jieqi-label">上一节气:</text>
+        <text class="jieqi-value">{{calendarData.jieQi.prev.name}} ({{calendarData.jieQi.prev.time}})</text>
+      </view>
+      <view class="jieqi-line">
+        <text class="jieqi-label">下一节气:</text>
+        <text class="jieqi-value">{{calendarData.jieQi.next.name}} ({{calendarData.jieQi.next.time}})</text>
+      </view>
+      <view wx:if="{{calendarData.festival.daysToSpringFestival > 0}}" class="festival-line">
+        距离 春节 还有 {{calendarData.festival.daysToSpringFestival}} 天
+      </view>
+    </view>
+
+    <!-- 宜忌区域 -->
+    <view class="yiji-section">
+      <view class="yiji-left">
+        <view class="yiji-header yi-header">宜</view>
+        <view class="yiji-content">
+          <text wx:for="{{calendarData.yiJi.yi}}" wx:key="index" class="yiji-item">{{item}}</text>
+        </view>
+      </view>
+      <view class="yiji-right">
+        <view class="yiji-header ji-header">忌</view>
+        <view class="yiji-content">
+          <text wx:for="{{calendarData.yiJi.ji}}" wx:key="index" class="yiji-item">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 冲煞区域 -->
+    <view class="chongsha-section">
+      <view class="chongsha-header">冲</view>
+      <view class="chongsha-text">{{calendarData.chongSha.full}}</view>
+    </view>
+
+    <!-- 流年流月流日 + 值日星神 -->
+    <view class="ganzhi-section">
+      <view class="ganzhi-left">
+        <view class="ganzhi-title">流年流月流日</view>
+        <view class="ganzhi-content">{{calendarData.ganZhi.full}}</view>
+        <view class="wuxing-text">{{calendarData.wuxing.year}}·{{calendarData.wuxing.month}}·{{calendarData.wuxing.day}}</view>
+      </view>
+      <view class="ganzhi-right">
+        <view class="zhiri-card">
+          <view class="zhiri-label">值日星神</view>
+          <view class="zhiri-item">
+            <view class="zhiri-key">十二建除</view>
+            <view class="zhiri-value">{{calendarData.zhiRiXingShen.zhiRi}}</view>
+          </view>
+          <view class="zhiri-item">
+            <view class="zhiri-key">黄黑道</view>
+            <view class="zhiri-value">{{calendarData.zhiRiXingShen.shiErJianChu}}</view>
+          </view>
+          <view class="zhiri-item">
+            <view class="zhiri-key">值日神煞</view>
+            <view class="zhiri-value">{{calendarData.zhiRiXingShen.shenSha}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 吉神方位 -->
+    <view class="fangwei-section">
+      <view class="section-header">
+        <text class="section-icon">🧭</text>
+        <text class="section-title">吉神方位</text>
+      </view>
+      <view class="fangwei-table">
+        <view class="fangwei-row">
+          <view class="fangwei-cell">
+            <text class="fangwei-label">财神位</text>
+            <text class="fangwei-value">{{calendarData.jiShenFangWei.caiShen}}</text>
+          </view>
+          <view class="fangwei-cell">
+            <text class="fangwei-label">福神位</text>
+            <text class="fangwei-value">{{calendarData.jiShenFangWei.fuShen}}</text>
+          </view>
+        </view>
+        <view class="fangwei-row">
+          <view class="fangwei-cell">
+            <text class="fangwei-label">喜神位</text>
+            <text class="fangwei-value">{{calendarData.jiShenFangWei.xiShen}}</text>
+          </view>
+          <view class="fangwei-cell">
+            <text class="fangwei-label">阳贵神</text>
+            <text class="fangwei-value">{{calendarData.jiShenFangWei.yangGuiShen}}</text>
+          </view>
+        </view>
+        <view class="fangwei-row">
+          <view class="fangwei-cell fangwei-cell-single">
+            <text class="fangwei-label">阴贵神</text>
+            <text class="fangwei-value">{{calendarData.jiShenFangWei.yinGuiShen}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 时辰吉凶 -->
+    <view class="shichen-section">
+      <view class="section-header">
+        <text class="section-icon">⏰</text>
+        <text class="section-title">时辰吉凶</text>
+      </view>
+      <view class="shichen-grid">
+        <view
+          wx:for="{{calendarData.shiChen}}"
+          wx:key="name"
+          class="shichen-card {{currentShiChen === item.name ? 'shichen-current' : ''}} shichen-{{item.jiXiongClass}}"
+        >
+          <view class="shichen-name">{{item.name}}</view>
+          <view class="shichen-time">{{item.time}}</view>
+          <view class="shichen-status">{{item.jiXiong}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 时辰五行能量 -->
+    <view wx:if="{{calendarData.wuxingEnergy}}" class="wuxing-energy-section">
+      <view class="section-header">
+        <text class="section-icon">⚡</text>
+        <text class="section-title">时辰五行能量</text>
+      </view>
+
+      <!-- 五行颜色图例 -->
+      <view class="wuxing-legend">
+        <view class="legend-item wuxing-jin">金</view>
+        <view class="legend-item wuxing-mu">木</view>
+        <view class="legend-item wuxing-shui">水</view>
+        <view class="legend-item wuxing-huo">火</view>
+        <view class="legend-item wuxing-tu">土</view>
+      </view>
+
+      <!-- 流日行（独立卡片） -->
+      <view class="wuxing-liuri-card">
+        <!-- 流日标题 -->
+        <view class="wuxing-liuri-title">流日</view>
+
+        <!-- 流日数据行 -->
+        <view class="wuxing-liuri-row">
+          <!-- 天干 -->
+          <view class="wuxing-gan-zhi wuxing-liuri-cell wuxing-{{calendarData.wuxingEnergy.liuri.dayGanWuxingPinyin}}">
+            <view class="gan-zhi-text">{{calendarData.wuxingEnergy.liuri.dayGan}}</view>
+            <view class="wuxing-text">({{calendarData.wuxingEnergy.liuri.dayGanWuxing}})</view>
+          </view>
+
+          <!-- 地支 -->
+          <view class="wuxing-gan-zhi wuxing-liuri-cell wuxing-{{calendarData.wuxingEnergy.liuri.dayZhiWuxingPinyin}}">
+            <view class="gan-zhi-text">{{calendarData.wuxingEnergy.liuri.dayZhi}}</view>
+            <view class="wuxing-text">({{calendarData.wuxingEnergy.liuri.dayZhiWuxing}})</view>
+          </view>
+
+          <!-- 藏干 -->
+          <view
+            wx:for="{{calendarData.wuxingEnergy.liuri.cangGan}}"
+            wx:key="type"
+            class="wuxing-canggan wuxing-liuri-cell wuxing-{{item.wuxingPinyin}}"
+          >
+            <view class="canggan-text">{{item.gan}}</view>
+            <view class="percent-text">{{item.percent}}%</view>
+          </view>
+
+          <!-- 填充空列 -->
+          <view wx:if="{{calendarData.wuxingEnergy.liuri.cangGan.length < 3}}" class="wuxing-canggan wuxing-liuri-cell wuxing-empty">
+            <view class="canggan-text">—</view>
+            <view class="percent-text"></view>
+          </view>
+          <view wx:if="{{calendarData.wuxingEnergy.liuri.cangGan.length < 2}}" class="wuxing-canggan wuxing-liuri-cell wuxing-empty">
+            <view class="canggan-text">—</view>
+            <view class="percent-text"></view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 时辰表格 -->
+      <view class="wuxing-table">
+        <!-- 标题行 -->
+        <view class="wuxing-row wuxing-title-row">
+          <view class="wuxing-title-cell wuxing-title-shichen">时辰</view>
+          <view class="wuxing-title-cell wuxing-title-canggan">地支藏干</view>
+        </view>
+
+        <!-- 表头行 -->
+        <view class="wuxing-row wuxing-header-row">
+          <view class="wuxing-cell wuxing-cell-header wuxing-header-shichen">天干</view>
+          <view class="wuxing-cell wuxing-cell-header wuxing-header-shichen">地支</view>
+          <view class="wuxing-cell wuxing-cell-header wuxing-header-canggan">主气</view>
+          <view class="wuxing-cell wuxing-cell-header wuxing-header-canggan">中气</view>
+          <view class="wuxing-cell wuxing-cell-header wuxing-header-canggan">余气</view>
+        </view>
+
+        <!-- 12个时辰行 -->
+        <view
+          wx:for="{{calendarData.wuxingEnergy.shiChen}}"
+          wx:key="name"
+          class="wuxing-row wuxing-shichen-row {{item.name === currentShiChen ? 'wuxing-shichen-current' : ''}}"
+          data-jixiong="{{item.jiXiong}}"
+        >
+          <view class="wuxing-gan-zhi wuxing-shichen-col wuxing-{{item.tianganWuxingPinyin}}">
+            <view class="gan-zhi-text">{{item.tiangan}}</view>
+            <view class="wuxing-text">({{item.tianganWuxing}})</view>
+          </view>
+          <view class="wuxing-gan-zhi wuxing-shichen-col wuxing-{{item.dizhiWuxingPinyin}}">
+            <view class="gan-zhi-text">{{item.dizhi}}</view>
+            <view class="wuxing-text">({{item.dizhiWuxing}})</view>
+          </view>
+          <view
+            wx:for="{{item.cangGan}}"
+            wx:for-item="cg"
+            wx:for-index="cgIndex"
+            wx:key="type"
+            class="wuxing-canggan wuxing-canggan-col wuxing-{{cg.wuxingPinyin}}"
+          >
+            <view class="canggan-text">{{cg.gan}}</view>
+            <view class="percent-text">{{cg.percent}}%</view>
+          </view>
+          <!-- 填充空列 -->
+          <view wx:if="{{item.cangGan.length < 3}}" class="wuxing-canggan wuxing-canggan-col wuxing-empty">
+            <view class="canggan-text">—</view>
+            <view class="percent-text"></view>
+          </view>
+          <view wx:if="{{item.cangGan.length < 2}}" class="wuxing-canggan wuxing-canggan-col wuxing-empty">
+            <view class="canggan-text">—</view>
+            <view class="percent-text"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../bazi-life-mvp"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"prisma.pinToPrisma6": true
+	}
+}

@@ -52,10 +52,6 @@
             <text class="label">出生地点：</text>
             <text class="value">{{item.city}}</text>
           </view>
-          <view class="info-row">
-            <text class="label">创建时间：</text>
-            <text class="value">{{formatTime(item.createdAt)}}</text>
-          </view>
         </view>
 
         <!-- 卡片底部 -->

@@ -10,7 +10,9 @@ App({
     cloudEnvId: 'zhibaitang-3g85tzfpc7281bc7',
     cachedReports: null,        // 缓存的报告列表
     reportsCacheTime: 0,        // 缓存时间戳
-    officialAccountQrcode: ''   // 公众号二维码地址（从后台配置获取）
+    officialAccountQrcode: '',  // 公众号二维码地址（从后台配置获取）
+    showTabBar: false,          // 是否显示底部功能栏，默认不显示
+    configLoaded: false         // 配置是否已加载完成
   },
 
   onLaunch() {
@@ -26,8 +28,38 @@ App({
       });
     }
 
+    // 加载配置
+    this.loadAppConfig();
+
     // 自动登录
     this.wechatLogin();
+  },
+
+  /**
+   * 加载小程序全局配置
+   */
+  async loadAppConfig() {
+    try {
+      console.log('[App] 开始加载全局配置...');
+      const result = await api.getConfig('show_tab_bar');
+      const config = result.data || {};
+
+      console.log('[App] 配置加载成功:', config);
+
+      // 更新全局配置
+      // 注意：使用 !== false 而不是 || false，以正确处理 true 值
+      this.globalData.showTabBar = config.show_tab_bar === true;
+
+      console.log('[App] TabBar显示状态:', this.globalData.showTabBar);
+      console.log('[App] 原始配置值:', config.show_tab_bar, '类型:', typeof config.show_tab_bar);
+    } catch (error) {
+      console.log('[App] 配置加载失败(使用默认值):', error.message || error);
+      // 使用默认值，默认不显示
+      this.globalData.showTabBar = false;
+    } finally {
+      // 标记配置已加载完成
+      this.globalData.configLoaded = true;
+    }
   },
 
   /**

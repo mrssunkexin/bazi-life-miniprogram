@@ -2,5 +2,6 @@
   "navigationBarTitleText": "分析报告",
   "navigationBarBackgroundColor": "#667eea",
   "navigationBarTextStyle": "white",
-  "enablePullDownRefresh": true
+  "enablePullDownRefresh": true,
+  "enableShareAppMessage": true
 }

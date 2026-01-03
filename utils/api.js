@@ -2,26 +2,34 @@
  * API 封装模块
  * 统一管理所有后端 API 调用
  */
-
-const config = require('../config.js');
+const config = require('../config.js') || {};
+const currentConfig = config.current || config.production || config.development || {};
+console.log('[API] config.current', currentConfig);
 
 // API 基础地址（从配置文件读取）
-const API_BASE = config.current.apiBase;
+const API_BASE = currentConfig.apiBase;
 
 /**
  * 通用请求封装
  */
 function request(url, options = {}) {
   return new Promise((resolve, reject) => {
+    console.log('[API] config.current', currentConfig);
+
     // 如果配置了使用云托管调用 (生产环境)
-    if (config.current.useCloudContainer) {
+    if (currentConfig.useCloudContainer) {
+      console.log('[Cloud API] using callContainer', {
+        env: currentConfig.cloudEnvId,
+        service: currentConfig.serviceName,
+        path: url
+      });
       wx.cloud.callContainer({
         config: {
-          env: config.current.cloudEnvId
+          env: currentConfig.cloudEnvId
         },
         path: url, // 路径，如 /api/reports
         header: {
-          'X-WX-SERVICE': config.current.serviceName, // 指定服务名称
+          'X-WX-SERVICE': currentConfig.serviceName, // 指定服务名称
           'Content-Type': 'application/json',
           ...options.header
         },
@@ -51,8 +59,10 @@ function request(url, options = {}) {
     }
 
     // 开发环境或普通 HTTP 请求
+    const fullUrl = `${API_BASE}${url}`;
+    console.log('[API] using wx.request', fullUrl);
     wx.request({
-      url: `${API_BASE}${url}`,
+      url: fullUrl,
       method: options.method || 'GET',
       data: options.data,
       timeout: 30000,  // 增加超时时间到30秒
@@ -215,6 +225,15 @@ const api = {
   getMixedReportList() {
     const app = getApp();
     return request(`/api/reports/mixed?userId=${app.globalData.userId}`);
+  },
+
+  /**
+   * 获取黄历数据
+   * @param {string} [date] - 日期 (YYYY-MM-DD)，不传则返回今天的黄历
+   */
+  getCalendarData(date) {
+    const url = date ? `/api/calendar?date=${date}` : '/api/calendar';
+    return request(url);
   }
 };
 

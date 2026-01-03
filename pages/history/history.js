@@ -18,7 +18,6 @@ Page({
    * 加载报告列表
    */
   async loadReports() {
-    console.time('[总耗时]');
     this.setData({ loading: true });
 
     try {
@@ -30,7 +29,7 @@ Page({
       const cacheValid = cacheAge < 5 * 60 * 1000; // 5分钟
 
       if (cached && cacheValid) {
-        // 使用缓存数据,立即显示
+        // 使用缓存数据,立即显示（缓存里已包含格式化字段）
         console.log(`[历史页] 使用缓存数据 (缓存${Math.round(cacheAge / 1000)}秒前)`);
         this.setData({
           reports: cached,
@@ -38,38 +37,37 @@ Page({
         });
         // 关闭首页的loading提示
         wx.hideLoading();
-        console.timeEnd('[总耗时]');
         return;
       }
 
       // 没有缓存或缓存过期,重新请求
       console.log('[历史页] 缓存无效,重新请求混合API');
-      console.time('[API请求]');
       const result = await api.getMixedReportList();
-      console.timeEnd('[API请求]');
+      const reports = (result.data && result.data.reports) ? result.data.reports : [];
+      // 在JS中预格式化创建时间，模板直接渲染字段
+      const formatted = reports.map(item => {
+        const ts = item.createdAt || item.publishAt || item.generatedAt || item.updatedAt || '';
+        return {
+          ...item,
+          createdAtText: this.formatTime(ts)
+        };
+      });
+      console.log(`[报告数量] ${formatted.length} 条`);
 
-      console.time('[数据处理]');
-      const reports = result.data || [];
-      console.log(`[报告数量] ${reports.length} 条`);
-
-      // 更新缓存
-      app.globalData.cachedReports = reports;
+      // 更新缓存（存入已格式化的数据，避免下次显示缺字段）
+      app.globalData.cachedReports = formatted;
       app.globalData.reportsCacheTime = Date.now();
 
       // 后端已排序,无需前端再排序
       // reports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      console.timeEnd('[数据处理]');
 
-      console.time('[页面渲染]');
       this.setData({
-        reports,
+        reports: formatted,
         loading: false
       });
-      console.timeEnd('[页面渲染]');
 
       // 关闭首页的loading提示
       wx.hideLoading();
-      console.timeEnd('[总耗时]');
     } catch (error) {
       console.error('[加载报告列表失败]', error);
       // 关闭loading
@@ -159,5 +157,15 @@ Page({
     console.log('[下拉刷新] 清除缓存,重新加载');
     await this.loadReports();
     wx.stopPullDownRefresh();
+  },
+
+  /**
+   * 页面分享配置
+   */
+  onShareAppMessage() {
+    return {
+      title: '我的历史报告｜九思知白堂',
+      path: '/pages/history/history'
+    };
   }
 });

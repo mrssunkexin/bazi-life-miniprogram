@@ -15,10 +15,10 @@
 
     <text class="generating-title">老师正在处理报告</text>
     <text class="generating-subtitle">预计大约需要 2 小时完成</text>
-    <text class="generating-hint">完成后将第一时间通知您</text>
+    <text wx:if="{{showWaitingNotify}}" class="generating-hint">完成后将第一时间通知您</text>
 
     <!-- 公众号二维码 -->
-    <view class="qrcode-section">
+    <view wx:if="{{showWaitingQr}}" class="qrcode-section">
       <text class="qrcode-title">关注公众号获取通知</text>
       <image
         class="qrcode-image"
@@ -99,9 +99,16 @@
 
     <!-- 底部按钮 -->
     <view class="actions">
-      <!-- 算法版：显示单个升级按钮 -->
-      <button wx:if="{{isAlgorithmReport}}" class="action-btn primary full-width" bindtap="onUpgradeToAI">
-        获取AI深度解读
+      <!-- 2026运势报告：只显示返回首页 -->
+      <block wx:if="{{reportType === 'fortune2026'}}">
+        <button class="action-btn primary full-width" bindtap="onBackHome">
+          返回首页
+        </button>
+      </block>
+
+      <!-- 算法版（无兑换码基础分析）：仅提供返回首页 -->
+      <button wx:elif="{{isAlgorithmReport}}" class="action-btn primary full-width" bindtap="onBackHome">
+        返回首页
       </button>
 
       <!-- AI版：显示原有的两个按钮 -->
