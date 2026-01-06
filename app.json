@@ -6,6 +6,32 @@
     "pages/result/result",
     "pages/history/history"
   ],
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#667eea",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/calendar/calendar",
+        "text": "黄历",
+        "iconPath": "images/tab-calendar.png",
+        "selectedIconPath": "images/tab-calendar-active.png"
+      },
+      {
+        "pagePath": "pages/index/index",
+        "text": "运势",
+        "iconPath": "images/tab-fortune.png",
+        "selectedIconPath": "images/tab-fortune-active.png"
+      },
+      {
+        "pagePath": "pages/my/my",
+        "text": "我的",
+        "iconPath": "images/tab-my.png",
+        "selectedIconPath": "images/tab-my-active.png"
+      }
+    ]
+  },
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#667eea",
