@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/calendar/calendar",
+    "pages/month-calendar/month-calendar",
     "pages/index/index",
     "pages/my/my",
     "pages/result/result",

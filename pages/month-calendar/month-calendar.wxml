@@ -1,0 +1,84 @@
+<!--pages/month-calendar/month-calendar.wxml-->
+<view class="month-calendar-container" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 月历内容 -->
+  <view wx:else class="content">
+    <!-- 顶部标题栏 -->
+    <view class="top-header">
+      <view class="logo-title">
+        <text class="logo-icon">🏮</text>
+        <text class="title-text">老黄历</text>
+      </view>
+    </view>
+
+    <!-- 年月导航栏 -->
+    <view class="year-month-bar">
+      <view class="year-month-text">{{year}} 年  {{month}} 月</view>
+      <view class="action-buttons">
+        <view wx:if="{{!isCurrentMonth}}" class="btn-today" bindtap="goToToday">回到今天</view>
+        <view class="btn-choose" bindtap="onChooseAuspicious">择吉日</view>
+      </view>
+    </view>
+
+    <!-- 月份标签 -->
+    <view class="month-label-section">
+      <view class="month-label">{{monthLabel}}</view>
+    </view>
+
+    <!-- 星期标题行 -->
+    <view class="weekday-header">
+      <view class="weekday-cell">日</view>
+      <view class="weekday-cell">一</view>
+      <view class="weekday-cell">二</view>
+      <view class="weekday-cell">三</view>
+      <view class="weekday-cell">四</view>
+      <view class="weekday-cell">五</view>
+      <view class="weekday-cell">六</view>
+    </view>
+
+    <!-- 日历网格 -->
+    <view class="calendar-grid">
+      <!-- 占位空白（月初前的空格） -->
+      <view
+        wx:for="{{emptyDaysBefore}}"
+        wx:key="index"
+        class="day-cell day-empty"
+      ></view>
+
+      <!-- 日期单元格 -->
+      <view
+        wx:for="{{days}}"
+        wx:key="date"
+        class="day-cell {{item.isToday ? 'day-today' : ''}}"
+        bindtap="onDayClick"
+        data-index="{{index}}"
+        data-date="{{item.date}}"
+        data-day="{{item.solar.day}}"
+        style="background-color: {{monthBgColor}};"
+      >
+        <!-- 节气标签（如果有，过滤数九） -->
+        <text wx:if="{{item.jieQiLabel}}" class="jieqi-tag">{{item.jieQiLabel}}</text>
+
+        <!-- 流日（干支） -->
+        <text class="liuri-text" style="color: {{item.liuriColor}};">{{item.ganZhi.dayGan}}{{item.ganZhi.dayZhi}}</text>
+
+        <!-- 公历日期（大字） -->
+        <text class="solar-num">{{item.solar.day}}</text>
+
+        <!-- 农历日期（小字） -->
+        <text class="lunar-day">{{item.lunar.day}}</text>
+      </view>
+
+      <!-- 占位空白（月末后的空格） -->
+      <view
+        wx:for="{{emptyDaysAfter}}"
+        wx:key="index"
+        class="day-cell day-empty"
+      ></view>
+    </view>
+  </view>
+</view>

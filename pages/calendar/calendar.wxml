@@ -10,6 +10,9 @@
       <view wx:if="{{!isToday}}" class="today-btn-top" bindtap="goToToday">
         <text>回到今天</text>
       </view>
+      <view class="share-btn-top" bindtap="onShareBtnClick">
+        <text>分享</text>
+      </view>
       <view class="calendar-icon" bindtap="onCalendarIconClick">
         <text class="icon">📅</text>
       </view>
@@ -168,11 +171,11 @@
 
       <!-- 五行颜色图例 -->
       <view class="wuxing-legend">
-        <view class="legend-item wuxing-jin">金</view>
-        <view class="legend-item wuxing-mu">木</view>
-        <view class="legend-item wuxing-shui">水</view>
-        <view class="legend-item wuxing-huo">火</view>
-        <view class="legend-item wuxing-tu">土</view>
+        <view class="legend-item" style="background-color: {{wuxingColorMap.jin}}; color: {{wuxingTextColorMap.jin}};">金</view>
+        <view class="legend-item" style="background-color: {{wuxingColorMap.mu}}; color: {{wuxingTextColorMap.mu}};">木</view>
+        <view class="legend-item" style="background-color: {{wuxingColorMap.shui}}; color: {{wuxingTextColorMap.shui}};">水</view>
+        <view class="legend-item" style="background-color: {{wuxingColorMap.huo}}; color: {{wuxingTextColorMap.huo}};">火</view>
+        <view class="legend-item" style="background-color: {{wuxingColorMap.tu}}; color: {{wuxingTextColorMap.tu}};">土</view>
       </view>
 
       <!-- 流日行（独立卡片） -->
@@ -183,13 +186,19 @@
         <!-- 流日数据行 -->
         <view class="wuxing-liuri-row">
           <!-- 天干 -->
-          <view class="wuxing-gan-zhi wuxing-liuri-cell wuxing-{{calendarData.wuxingEnergy.liuri.dayGanWuxingPinyin}}">
+          <view
+            class="wuxing-gan-zhi wuxing-liuri-cell"
+            style="background-color: {{wuxingColorMap[calendarData.wuxingEnergy.liuri.dayGanWuxingPinyin]}}; color: {{wuxingTextColorMap[calendarData.wuxingEnergy.liuri.dayGanWuxingPinyin]}};"
+          >
             <view class="gan-zhi-text">{{calendarData.wuxingEnergy.liuri.dayGan}}</view>
             <view class="wuxing-text">({{calendarData.wuxingEnergy.liuri.dayGanWuxing}})</view>
           </view>
 
           <!-- 地支 -->
-          <view class="wuxing-gan-zhi wuxing-liuri-cell wuxing-{{calendarData.wuxingEnergy.liuri.dayZhiWuxingPinyin}}">
+          <view
+            class="wuxing-gan-zhi wuxing-liuri-cell"
+            style="background-color: {{wuxingColorMap[calendarData.wuxingEnergy.liuri.dayZhiWuxingPinyin]}}; color: {{wuxingTextColorMap[calendarData.wuxingEnergy.liuri.dayZhiWuxingPinyin]}};"
+          >
             <view class="gan-zhi-text">{{calendarData.wuxingEnergy.liuri.dayZhi}}</view>
             <view class="wuxing-text">({{calendarData.wuxingEnergy.liuri.dayZhiWuxing}})</view>
           </view>
@@ -198,7 +207,8 @@
           <view
             wx:for="{{calendarData.wuxingEnergy.liuri.cangGan}}"
             wx:key="type"
-            class="wuxing-canggan wuxing-liuri-cell wuxing-{{item.wuxingPinyin}}"
+            class="wuxing-canggan wuxing-liuri-cell"
+            style="background-color: {{wuxingColorMap[item.wuxingPinyin]}}; color: {{wuxingTextColorMap[item.wuxingPinyin]}};"
           >
             <view class="canggan-text">{{item.gan}}</view>
             <view class="percent-text">{{item.percent}}%</view>
@@ -240,11 +250,17 @@
           class="wuxing-row wuxing-shichen-row {{item.name === currentShiChen ? 'wuxing-shichen-current' : ''}}"
           data-jixiong="{{item.jiXiong}}"
         >
-          <view class="wuxing-gan-zhi wuxing-shichen-col wuxing-{{item.tianganWuxingPinyin}}">
+          <view
+            class="wuxing-gan-zhi wuxing-shichen-col"
+            style="background-color: {{wuxingColorMap[item.tianganWuxingPinyin]}}; color: {{wuxingTextColorMap[item.tianganWuxingPinyin]}};"
+          >
             <view class="gan-zhi-text">{{item.tiangan}}</view>
             <view class="wuxing-text">({{item.tianganWuxing}})</view>
           </view>
-          <view class="wuxing-gan-zhi wuxing-shichen-col wuxing-{{item.dizhiWuxingPinyin}}">
+          <view
+            class="wuxing-gan-zhi wuxing-shichen-col"
+            style="background-color: {{wuxingColorMap[item.dizhiWuxingPinyin]}}; color: {{wuxingTextColorMap[item.dizhiWuxingPinyin]}};"
+          >
             <view class="gan-zhi-text">{{item.dizhi}}</view>
             <view class="wuxing-text">({{item.dizhiWuxing}})</view>
           </view>
@@ -253,7 +269,8 @@
             wx:for-item="cg"
             wx:for-index="cgIndex"
             wx:key="type"
-            class="wuxing-canggan wuxing-canggan-col wuxing-{{cg.wuxingPinyin}}"
+            class="wuxing-canggan wuxing-canggan-col"
+            style="background-color: {{wuxingColorMap[cg.wuxingPinyin]}}; color: {{wuxingTextColorMap[cg.wuxingPinyin]}};"
           >
             <view class="canggan-text">{{cg.gan}}</view>
             <view class="percent-text">{{cg.percent}}%</view>
@@ -271,4 +288,31 @@
       </view>
     </view>
   </view>
+
+  <!-- 海报预览弹窗 -->
+  <view wx:if="{{showPosterModal}}" class="poster-modal" catchtap="onClosePosterModal">
+    <view class="poster-modal-content" catchtap="onStopPropagation">
+      <!-- 关闭按钮 -->
+      <view class="poster-close-btn" bindtap="onClosePosterModal">
+        <text>✕</text>
+      </view>
+
+      <!-- 海报预览区 -->
+      <view class="poster-preview">
+        <image wx:if="{{posterImage}}" src="{{posterImage}}" mode="widthFix" class="poster-image"></image>
+        <view wx:else class="poster-generating">
+          <text>生成海报中...</text>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="poster-actions">
+        <button class="poster-btn poster-btn-save" bindtap="onSavePoster">保存到相册</button>
+        <button class="poster-btn poster-btn-share" open-type="share">分享给好友</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- Canvas 用于生成海报（隐藏） -->
+  <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
 </view>

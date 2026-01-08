@@ -9,11 +9,8 @@ module.exports = {
   
   // 生产环境
   production: {
-    // 生产环境使用云托管内网调用，无需 apiBase
-    useCloudContainer: true,
-    cloudEnvId: 'zhibaitang-3g85tzfpc7281bc7', // 你的云托管环境ID
-    serviceName: 'zhibaitang-bazisever',       // 你的云托管服务名称
-    qrcodeUrl: '/images/qrcode.jpg'  // 默认使用本地图片，后台配置后会覆盖
+    apiBase: 'https://www.dralexlp.com',
+    qrcodeUrl: '/images/qrcode.jpg'
   }
 };
 

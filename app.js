@@ -11,13 +11,14 @@ App({
     cachedReports: null,        // 缓存的报告列表
     reportsCacheTime: 0,        // 缓存时间戳
     officialAccountQrcode: '',  // 公众号二维码地址（从后台配置获取）
-    // showTabBar: false,          // 是否显示底部功能栏，默认不显示
-    showTabBar: true,           // 默认显示，实际以 show_tab_bar 配置为准
+    showTabBar: false,          // 是否显示底部功能栏，默认不显示
     configLoaded: false         // 配置是否已加载完成
   },
 
   onLaunch() {
     console.log('八字命理分析小程序启动');
+
+    this.setupUpdateManager();
 
     // 初始化云开发
     if (!wx.cloud) {
@@ -34,6 +35,42 @@ App({
 
     // 自动登录
     this.wechatLogin();
+  },
+
+  /**
+   * 小程序版本更新提示
+   */
+  setupUpdateManager() {
+    if (!wx.getUpdateManager) {
+      return;
+    }
+
+    const updateManager = wx.getUpdateManager();
+
+    updateManager.onCheckForUpdate((res) => {
+      console.log('[Update] hasUpdate:', res.hasUpdate);
+    });
+
+    updateManager.onUpdateReady(() => {
+      wx.showModal({
+        title: '更新提示',
+        content: '新版本已准备好，是否重启应用？',
+        confirmText: '重启',
+        cancelText: '稍后',
+        success: (res) => {
+          if (res.confirm) {
+            updateManager.applyUpdate();
+          }
+        }
+      });
+    });
+
+    updateManager.onUpdateFailed(() => {
+      wx.showToast({
+        title: '更新失败，请稍后重试',
+        icon: 'none'
+      });
+    });
   },
 
   /**
@@ -56,10 +93,23 @@ App({
     } catch (error) {
       console.log('[App] 配置加载失败(使用默认值):', error.message || error);
       // 使用默认值，默认不显示
-      // this.globalData.showTabBar = false;
+      this.globalData.showTabBar = false;
     } finally {
       // 标记配置已加载完成
       this.globalData.configLoaded = true;
+      // 配置加载完成后统一触发显示/隐藏
+      this.applyTabBarVisibility();
+    }
+  },
+
+  /**
+   * 统一触发当前页面的 TabBar 显示/隐藏
+   */
+  applyTabBarVisibility() {
+    const pages = getCurrentPages();
+    const current = pages[pages.length - 1];
+    if (current && typeof current.onTabBarConfigChanged === 'function') {
+      current.onTabBarConfigChanged(this.globalData.showTabBar);
     }
   },
 

@@ -128,19 +128,12 @@ Page({
    * 页面显示时触发
    */
   onShow() {
-    // 控制 TabBar 显示/隐藏（延迟执行确保配置已加载）
-    setTimeout(() => {
-      const app = getApp();
-      console.log('[运势页] TabBar配置:', app.globalData.showTabBar);
-      if (app.globalData.showTabBar) {
-        wx.showTabBar({ animation: false });
-      } else {
-        wx.hideTabBar({ animation: false });
-      }
-    }, 100);
+    const app = getApp();
+    if (typeof app.applyTabBarVisibility === 'function') {
+      app.applyTabBarVisibility();
+    }
 
     // 确保登录后再预加载报告列表
-    const app = getApp();
     if (app.globalData.userId) {
       // 已登录,直接预加载
       this.preloadReports();
@@ -550,5 +543,17 @@ Page({
       title: '九思知白堂｜生辰五行分析',
       path: '/pages/index/index'
     };
+  },
+
+  /**
+   * 配置加载完成后触发
+   * @param {boolean} showTabBar 是否显示 TabBar
+   */
+  onTabBarConfigChanged(showTabBar) {
+    if (showTabBar) {
+      wx.showTabBar({ animation: false });
+    } else {
+      wx.hideTabBar({ animation: false });
+    }
   }
 });

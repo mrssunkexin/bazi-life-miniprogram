@@ -41,16 +41,10 @@ Page({
   },
 
   onShow() {
-    // 控制 TabBar 显示/隐藏（延迟执行确保配置已加载）
-    setTimeout(() => {
-      const app = getApp();
-      console.log('[我的页] TabBar配置:', app.globalData.showTabBar);
-      if (app.globalData.showTabBar) {
-        wx.showTabBar({ animation: false });
-      } else {
-        wx.hideTabBar({ animation: false });
-      }
-    }, 100);
+    const app = getApp();
+    if (typeof app.applyTabBarVisibility === 'function') {
+      app.applyTabBarVisibility();
+    }
   },
 
   /**
@@ -61,5 +55,17 @@ Page({
       title: '九思知白堂｜我的',
       path: '/pages/my/my'
     };
+  },
+
+  /**
+   * 配置加载完成后触发
+   * @param {boolean} showTabBar 是否显示 TabBar
+   */
+  onTabBarConfigChanged(showTabBar) {
+    if (showTabBar) {
+      wx.showTabBar({ animation: false });
+    } else {
+      wx.hideTabBar({ animation: false });
+    }
   }
 });
