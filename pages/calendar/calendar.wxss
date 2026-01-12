@@ -27,19 +27,40 @@
   gap: 15rpx;
 }
 
-.lantern-icon {
-  font-size: 40rpx;
+/* 日期选择器 */
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 20rpx;
+  background-color: #f8f9fa;
+  border-radius: 30rpx;
+  border: 1rpx solid #e0e0e0;
 }
 
-.title {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #d63031;
+.date-selector-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.date-selector-arrow {
+  font-size: 20rpx;
+  color: #999;
+  transition: transform 0.3s;
 }
 
 .today-btn-top {
   padding: 8rpx 16rpx;
   background-color: #667eea;
+  color: #fff;
+  font-size: 24rpx;
+  border-radius: 30rpx;
+}
+
+.fortune-btn-top {
+  padding: 8rpx 16rpx;
+  background-color: #f56565;
   color: #fff;
   font-size: 24rpx;
   border-radius: 30rpx;
@@ -845,6 +866,78 @@
 }
 
 .poster-btn-share {
+  background-color: #667eea;
+  color: #fff;
+}
+
+/* ========== 日期选择器弹窗 ========== */
+.date-picker-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 9999;
+}
+
+.date-picker-content {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 30rpx 30rpx 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.date-picker-header {
+  text-align: center;
+  padding: 30rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1rpx solid #eee;
+}
+
+.date-picker-body {
+  padding: 20rpx 0;
+}
+
+.date-picker-view {
+  height: 400rpx;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  font-size: 32rpx;
+  color: #333;
+}
+
+.date-picker-footer {
+  display: flex;
+  gap: 20rpx;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.date-picker-btn {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 30rpx;
+  border-radius: 40rpx;
+  border: none;
+}
+
+.cancel-btn {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.confirm-btn {
   background-color: #667eea;
   color: #fff;
 }

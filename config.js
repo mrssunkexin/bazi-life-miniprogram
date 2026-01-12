@@ -16,7 +16,7 @@ module.exports = {
 
 // 当前环境（开发时改为 'development'，上线时改为 'production'）
 // 注意：体验版和正式版都应该使用 'production' 配置
-const ENV = 'production';
+const ENV = 'development';
 
 // 导出当前环境配置
 module.exports.current = module.exports[ENV];

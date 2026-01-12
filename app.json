@@ -2,34 +2,31 @@
   "pages": [
     "pages/calendar/calendar",
     "pages/month-calendar/month-calendar",
+    "pages/zeji/zeji",
+    "pages/zeji-result/zeji-result",
     "pages/index/index",
     "pages/my/my",
     "pages/result/result",
     "pages/history/history"
   ],
   "tabBar": {
+    "custom": true,
     "color": "#999999",
     "selectedColor": "#667eea",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [
       {
+        "pagePath": "pages/month-calendar/month-calendar",
+        "text": "万年历"
+      },
+      {
         "pagePath": "pages/calendar/calendar",
-        "text": "黄历",
-        "iconPath": "images/tab-calendar.png",
-        "selectedIconPath": "images/tab-calendar-active.png"
+        "text": "黄历"
       },
       {
-        "pagePath": "pages/index/index",
-        "text": "运势",
-        "iconPath": "images/tab-fortune.png",
-        "selectedIconPath": "images/tab-fortune-active.png"
-      },
-      {
-        "pagePath": "pages/my/my",
-        "text": "我的",
-        "iconPath": "images/tab-my.png",
-        "selectedIconPath": "images/tab-my-active.png"
+        "pagePath": "pages/zeji/zeji",
+        "text": "择吉"
       }
     ]
   },

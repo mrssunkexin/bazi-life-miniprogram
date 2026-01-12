@@ -1,10 +1,12 @@
 // pages/calendar/calendar.js
 const api = require('../../utils/api');
 const { getWuxingColor, getWuxingRgba } = require('../../utils/wuxing-colors.js');
+const { addInterceptor } = require('../../utils/page-interceptor.js');
 
-Page({
+Page(addInterceptor({
   data: {
     currentDate: '',        // 当前查看的日期（YYYY-MM-DD）
+    displayDate: '',        // 显示的日期文本（YYYY年MM月DD日）
     calendarData: null,     // 黄历数据
     loading: false,
     currentShiChen: '',     // 当前时辰
@@ -17,12 +19,31 @@ Page({
     wuxingColorMap: {},
     wuxingColorMapLight: {},
     wuxingTextColorMap: {},
+    // 日期选择器相关
+    showDatePickerModal: false, // 是否显示日期选择器弹窗
+    years: [],              // 年份数组
+    months: [],             // 月份数组
+    days: [],               // 日期数组
+    pickerValue: [0, 0, 0], // 选择器当前值 [年索引, 月索引, 日索引]
+    selectedYear: 2026,     // 选中的年份
+    selectedMonth: 1,       // 选中的月份
+    selectedDay: 1,         // 选中的日期
   },
 
   onLoad() {
     // 初始化为今天
     const today = this.formatDate(new Date());
-    this.setData({ currentDate: today });
+    const todayObj = new Date();
+    const displayDate = `${todayObj.getFullYear()}年${todayObj.getMonth() + 1}月${todayObj.getDate()}日`;
+
+    this.setData({
+      currentDate: today,
+      displayDate: displayDate
+    });
+
+    // 初始化日期选择器数据
+    this.initDatePicker();
+
     this.loadCalendarData();
     this.updateCurrentShiChen();
 
@@ -45,7 +66,17 @@ Page({
     const targetDate = wx.getStorageSync('calendar_target_date');
     if (targetDate) {
       wx.removeStorageSync('calendar_target_date');
-      this.setData({ currentDate: targetDate, isToday: false }, () => {
+
+      // 解析目标日期并生成显示文本
+      const [year, month, day] = targetDate.split('-').map(Number);
+      const displayDate = `${year}年${month}月${day}日`;
+      const today = this.formatDate(new Date());
+
+      this.setData({
+        currentDate: targetDate,
+        displayDate: displayDate,
+        isToday: targetDate === today
+      }, () => {
         this.loadCalendarData();
       });
     }
@@ -56,6 +87,13 @@ Page({
     const app = getApp();
     if (typeof app.applyTabBarVisibility === 'function') {
       app.applyTabBarVisibility();
+    }
+
+    // 更新自定义 tabBar 选中状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 1
+      });
     }
   },
 
@@ -190,10 +228,12 @@ Page({
     currentDate.setDate(currentDate.getDate() + days);
 
     const newDate = this.formatDate(currentDate);
+    const displayDate = `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日`;
     const today = this.formatDate(new Date());
 
     this.setData({
       currentDate: newDate,
+      displayDate: displayDate,
       isToday: newDate === today
     });
     this.loadCalendarData();
@@ -233,9 +273,13 @@ Page({
    */
   goToToday() {
     const today = this.formatDate(new Date());
+    const todayObj = new Date();
+    const displayDate = `${todayObj.getFullYear()}年${todayObj.getMonth() + 1}月${todayObj.getDate()}日`;
+
     if (this.data.currentDate !== today) {
       this.setData({
         currentDate: today,
+        displayDate: displayDate,
         isToday: true
       });
       this.loadCalendarData();
@@ -253,15 +297,12 @@ Page({
   },
 
   /**
-   * 配置加载完成后触发
-   * @param {boolean} showTabBar 是否显示 TabBar
+   * 跳转到运势页面
    */
-  onTabBarConfigChanged(showTabBar) {
-    if (showTabBar) {
-      wx.showTabBar({ animation: false });
-    } else {
-      wx.hideTabBar({ animation: false });
-    }
+  onGoFortune() {
+    wx.navigateTo({
+      url: '/pages/index/index'
+    });
   },
 
   /**
@@ -1004,5 +1045,181 @@ Page({
     }
 
     return lines;
+  },
+
+  /**
+   * 初始化日期选择器数据
+   */
+  initDatePicker() {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentDay = currentDate.getDate();
+
+    // 生成年份数组 (1900-2100)
+    const years = [];
+    for (let i = 1900; i <= 2100; i++) {
+      years.push(i);
+    }
+
+    // 生成月份数组 (1-12)
+    const months = [];
+    for (let i = 1; i <= 12; i++) {
+      months.push(i);
+    }
+
+    // 初始化日期数组（根据当前年月）
+    const days = this.getDaysInMonth(currentYear, currentMonth);
+
+    // 计算当前日期在数组中的索引
+    const yearIndex = years.indexOf(currentYear);
+    const monthIndex = currentMonth - 1;
+    const dayIndex = currentDay - 1;
+
+    this.setData({
+      years,
+      months,
+      days,
+      pickerValue: [yearIndex, monthIndex, dayIndex],
+      selectedYear: currentYear,
+      selectedMonth: currentMonth,
+      selectedDay: currentDay
+    });
+  },
+
+  /**
+   * 获取指定年月的天数数组
+   */
+  getDaysInMonth(year, month) {
+    const daysCount = this.getMaxDaysInMonth(year, month);
+    const days = [];
+    for (let i = 1; i <= daysCount; i++) {
+      days.push(i);
+    }
+    return days;
+  },
+
+  /**
+   * 获取指定年月的最大天数
+   */
+  getMaxDaysInMonth(year, month) {
+    // 特殊处理2月
+    if (month === 2) {
+      return this.isLeapYear(year) ? 29 : 28;
+    }
+    // 大月: 1, 3, 5, 7, 8, 10, 12
+    if ([1, 3, 5, 7, 8, 10, 12].indexOf(month) !== -1) {
+      return 31;
+    }
+    // 小月: 4, 6, 9, 11
+    return 30;
+  },
+
+  /**
+   * 判断是否为闰年
+   */
+  isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+  },
+
+  /**
+   * 显示日期选择器
+   */
+  onShowDatePicker() {
+    // 根据当前日期初始化选择器
+    const [year, month, day] = this.data.currentDate.split('-').map(Number);
+
+    const yearIndex = this.data.years.indexOf(year);
+    const monthIndex = month - 1;
+    const dayIndex = day - 1;
+
+    this.setData({
+      selectedYear: year,
+      selectedMonth: month,
+      selectedDay: day,
+      pickerValue: [yearIndex, monthIndex, dayIndex],
+      days: this.getDaysInMonth(year, month),
+      showDatePickerModal: true
+    });
+  },
+
+  /**
+   * 选择器值变化
+   */
+  onPickerChange(e) {
+    const val = e.detail.value;
+    const year = this.data.years[val[0]];
+    const month = this.data.months[val[1]];
+    let day = this.data.days[val[2]];
+
+    // 检查新选择的年月组合的最大天数
+    const maxDays = this.getMaxDaysInMonth(year, month);
+    const newDays = this.getDaysInMonth(year, month);
+
+    // 如果当前选择的日期超过了新月份的最大天数，调整到最大天数
+    if (day > maxDays) {
+      day = maxDays;
+      val[2] = day - 1; // 更新日期索引
+    }
+
+    // 如果天数数组变化，更新days和pickerValue
+    if (this.data.days.length !== newDays.length) {
+      this.setData({
+        days: newDays,
+        pickerValue: val,
+        selectedYear: year,
+        selectedMonth: month,
+        selectedDay: day
+      });
+    } else {
+      this.setData({
+        pickerValue: val,
+        selectedYear: year,
+        selectedMonth: month,
+        selectedDay: day
+      });
+    }
+  },
+
+  /**
+   * 关闭日期选择器
+   */
+  onCloseDatePicker() {
+    this.setData({
+      showDatePickerModal: false
+    });
+  },
+
+  /**
+   * 阻止事件冒泡
+   */
+  onStopPropagation() {
+    // 空函数，仅用于阻止事件冒泡
+  },
+
+  /**
+   * 确认选择日期
+   */
+  onConfirmDatePicker() {
+    const { selectedYear, selectedMonth, selectedDay } = this.data;
+
+    // 格式化日期
+    const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+    const displayDate = `${selectedYear}年${selectedMonth}月${selectedDay}日`;
+
+    // 检查是否是今天
+    const today = this.formatDate(new Date());
+    const isToday = dateStr === today;
+
+    // 更新数据
+    this.setData({
+      currentDate: dateStr,
+      displayDate: displayDate,
+      isToday: isToday,
+      showDatePickerModal: false
+    });
+
+    // 重新加载黄历数据
+    this.loadCalendarData();
   }
-});
+}));

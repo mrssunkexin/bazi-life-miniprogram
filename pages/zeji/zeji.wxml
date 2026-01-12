@@ -1,0 +1,96 @@
+<!--pages/zeji/zeji.wxml-->
+<view class="zeji-container">
+  <!-- 标题 -->
+  <view class="header">
+    <text class="title">择吉日</text>
+    <text class="subtitle">选择事项，查询吉日</text>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 事项列表 -->
+  <view wx:else class="items-section">
+    <!-- 常用/热门 -->
+    <view class="category-section">
+      <view class="category-title">常用</view>
+      <view class="items-grid">
+        <view
+          wx:for="{{hotItems}}"
+          wx:key="index"
+          class="item-btn"
+          bindtap="onSelectItem"
+          data-item="{{item}}"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 商业工作 -->
+    <view class="category-section">
+      <view class="category-title">商业工作</view>
+      <view class="items-grid">
+        <view
+          wx:for="{{businessItems}}"
+          wx:key="index"
+          class="item-btn"
+          bindtap="onSelectItem"
+          data-item="{{item}}"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 装修建造 -->
+    <view class="category-section">
+      <view class="category-title">装修建造</view>
+      <view class="items-grid">
+        <view
+          wx:for="{{constructionItems}}"
+          wx:key="index"
+          class="item-btn"
+          bindtap="onSelectItem"
+          data-item="{{item}}"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 生活日常 -->
+    <view class="category-section">
+      <view class="category-title">生活日常</view>
+      <view class="items-grid">
+        <view
+          wx:for="{{dailyItems}}"
+          wx:key="index"
+          class="item-btn"
+          bindtap="onSelectItem"
+          data-item="{{item}}"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 其他 -->
+    <view class="category-section">
+      <view class="category-title">其他</view>
+      <view class="items-grid">
+        <view
+          wx:for="{{otherItems}}"
+          wx:key="index"
+          class="item-btn"
+          bindtap="onSelectItem"
+          data-item="{{item}}"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

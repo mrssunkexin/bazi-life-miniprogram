@@ -1,0 +1,119 @@
+<!--pages/zeji-result/zeji-result.wxml-->
+<view class="result-container">
+  <!-- 标题栏 -->
+  <view class="header">
+    <view class="header-content">
+      <text class="item-name">{{selectedItem}}</text>
+      <text class="date-range">{{dateRangeText}}</text>
+    </view>
+    <view class="header-action" bindtap="onChangeDateRange">
+      <text class="action-icon">📅</text>
+      <text class="action-text">修改日期</text>
+    </view>
+  </view>
+
+  <!-- 搜索结果统计 -->
+  <view class="result-stats">
+    <text wx:if="{{!loading && results.length > 0}}">适宜{{selectedItem}}的日子共有 {{results.length}} 天</text>
+    <text wx:if="{{!loading && results.length === 0 && searched}}">暂无结果，建议扩大搜索时间范围</text>
+  </view>
+
+  <!-- 加载状态 -->
+  <view wx:if="{{loading && results.length === 0}}" class="loading">
+    <text>搜索中...</text>
+  </view>
+
+  <!-- 结果列表 -->
+  <view wx:else class="results-list">
+    <view
+      wx:for="{{results}}"
+      wx:key="date"
+      class="result-card"
+    >
+      <!-- 左侧日期 -->
+      <view class="date-block">
+        <text class="date-month">{{item.solar.year}}.{{item.solar.month}}</text>
+        <text class="date-day">{{item.solar.day}}</text>
+        <text class="date-weekday">周{{item.solar.weekday}}</text>
+      </view>
+
+      <!-- 右侧详情 -->
+      <view class="info-block">
+        <view class="info-row">
+          <text class="info-label">农历</text>
+          <text class="info-value">{{item.lunar.monthDay}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">流年流月流日</text>
+          <text class="info-value">{{item.lunar.ganZhi}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">值神</text>
+          <text class="info-value">{{item.zhiShen}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多按钮 -->
+    <view wx:if="{{hasMore}}" class="load-more-section">
+      <button
+        class="load-more-btn"
+        bindtap="onLoadMore"
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        {{loading ? '加载中...' : '加载更多'}}
+      </button>
+    </view>
+
+    <!-- 没有更多数据提示 -->
+    <view wx:if="{{!hasMore && results.length > 0}}" class="no-more">
+      <text>已显示全部结果</text>
+    </view>
+  </view>
+
+  <!-- 日期选择器弹窗 -->
+  <view wx:if="{{showDatePicker}}" class="date-picker-modal" catchtap="onCloseDatePicker">
+    <view class="date-picker-content" catchtap="onStopPropagation">
+      <view class="date-picker-header">
+        <text>选择日期范围</text>
+      </view>
+
+      <view class="date-picker-body">
+        <view class="date-input-row">
+          <text class="date-label">起始日期</text>
+          <picker
+            mode="date"
+            value="{{tempStartDate}}"
+            start="{{todayDate}}"
+            bindchange="onStartDateChange"
+          >
+            <view class="date-picker-value">{{tempStartDate}}</view>
+          </picker>
+        </view>
+
+        <view class="date-input-row">
+          <text class="date-label">结束日期</text>
+          <picker
+            mode="date"
+            value="{{tempEndDate}}"
+            start="{{tempStartDate}}"
+            end="{{maxEndDate}}"
+            bindchange="onEndDateChange"
+          >
+            <view class="date-picker-value">{{tempEndDate}}</view>
+          </picker>
+        </view>
+
+        <view class="date-hint">
+          <text>日期范围最长不超过1年</text>
+        </view>
+      </view>
+
+      <view class="date-picker-footer">
+        <button class="date-picker-btn cancel-btn" bindtap="onCloseDatePicker">取消</button>
+        <button class="date-picker-btn confirm-btn" bindtap="onConfirmDatePicker">确定</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -3,12 +3,17 @@
   <!-- 顶部导航栏 -->
   <view class="header">
     <view class="header-left">
-      <text class="lantern-icon">🏮</text>
-      <text class="title">万年历</text>
+      <view class="date-selector" bindtap="onShowDatePicker">
+        <text class="date-selector-text">{{displayDate}}</text>
+        <text class="date-selector-arrow">▼</text>
+      </view>
     </view>
     <view class="header-right">
       <view wx:if="{{!isToday}}" class="today-btn-top" bindtap="goToToday">
         <text>回到今天</text>
+      </view>
+      <view class="fortune-btn-top" bindtap="onGoFortune">
+        <text>运势</text>
       </view>
       <view class="share-btn-top" bindtap="onShareBtnClick">
         <text>分享</text>
@@ -308,7 +313,37 @@
       <!-- 操作按钮 -->
       <view class="poster-actions">
         <button class="poster-btn poster-btn-save" bindtap="onSavePoster">保存到相册</button>
-        <button class="poster-btn poster-btn-share" open-type="share">分享给好友</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 日期选择器弹窗 -->
+  <view wx:if="{{showDatePickerModal}}" class="date-picker-modal" catchtap="onCloseDatePicker">
+    <view class="date-picker-content" catchtap="onStopPropagation">
+      <view class="date-picker-header">
+        <text>选择日期</text>
+      </view>
+
+      <view class="date-picker-body">
+        <picker-view class="date-picker-view" indicator-style="height: 50px;" value="{{pickerValue}}" bindchange="onPickerChange">
+          <!-- 年份列 -->
+          <picker-view-column>
+            <view wx:for="{{years}}" wx:key="*this" class="picker-item">{{item}}年</view>
+          </picker-view-column>
+          <!-- 月份列 -->
+          <picker-view-column>
+            <view wx:for="{{months}}" wx:key="*this" class="picker-item">{{item}}月</view>
+          </picker-view-column>
+          <!-- 日期列 -->
+          <picker-view-column>
+            <view wx:for="{{days}}" wx:key="*this" class="picker-item">{{item}}日</view>
+          </picker-view-column>
+        </picker-view>
+      </view>
+
+      <view class="date-picker-footer">
+        <button class="date-picker-btn cancel-btn" bindtap="onCloseDatePicker">取消</button>
+        <button class="date-picker-btn confirm-btn" bindtap="onConfirmDatePicker">确定</button>
       </view>
     </view>
   </view>
